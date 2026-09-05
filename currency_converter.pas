@@ -181,6 +181,21 @@ begin
   NormalizeNumber := Value;
 end;
 
+function DisplayAmountText: String;
+var
+  NumericValue: Double;
+  ErrorPosition: Integer;
+begin
+  DisplayAmountText := AmountText;
+  if (AmountText = '') or (FocusControl = ControlAmount) then
+    Exit;
+  NumericValue := 0.0;
+  ErrorPosition := 0;
+  Val(NormalizeNumber(AmountText), NumericValue, ErrorPosition);
+  if (ErrorPosition = 0) and (NumericValue > 0.0) then
+    DisplayAmountText := DecimalText(NumericValue);
+end;
+
 function HorizontalLine: String;
 var
   I: Integer;
@@ -370,7 +385,7 @@ begin
 
   WriteTUI(3, 13, LocalizedText(tkTuiAmountLabel, CurrentLanguage),
     LightCyan);
-  AmountValue := AmountText;
+  AmountValue := DisplayAmountText;
   if AmountValue = '' then
     AmountValue := LocalizedText(tkTuiAmountPlaceholder, CurrentLanguage);
   DrawField(14, AmountValue, FocusControl = ControlAmount);
