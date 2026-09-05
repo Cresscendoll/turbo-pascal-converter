@@ -12,7 +12,8 @@ uses
 
 const
   SnapshotDate = '05.09.2026';
-  CurrencyCount = 30;
+  CurrencyCount = 32;
+  CurrencyPickerRows = 16;
   MaximumAmount = 1.0E15;
 
 type
@@ -393,15 +394,15 @@ begin
     LightCyan);
   for Index := 1 to CurrencyCount do
   begin
-    Row := ((Index - 1) mod 15) + 5;
-    if Index <= 15 then
+    Row := ((Index - 1) mod CurrencyPickerRows) + 5;
+    if Index <= CurrencyPickerRows then
       X := 3
     else
       X := 37;
     SetRegion(CurrencyRegions[Index], X, Row, X + 30, Row, Index);
     DrawPickerCurrencyLine(Index, X, Row);
   end;
-  WriteTUI(3, 20, FitText(LocalizedText(tkCurrencyIntro2,
+  WriteTUI(3, 21, FitText(LocalizedText(tkCurrencyIntro2,
     CurrentLanguage), 66), DarkGray);
   WriteTUI(3, 22, '[ ' + LocalizedText(tkTuiBackButton, CurrentLanguage) +
     ' ]', Yellow);
@@ -981,41 +982,43 @@ begin
   end;
   if Event.KeyCode = TUIKeyUp then
   begin
-    if (PickerSelection <= 15) and (PickerSelection > 1) then
+    if (PickerSelection <= CurrencyPickerRows) and (PickerSelection > 1) then
       Dec(PickerSelection)
-    else if PickerSelection > 16 then
+    else if PickerSelection > CurrencyPickerRows + 1 then
       Dec(PickerSelection);
     Exit;
   end;
   if Event.KeyCode = TUIKeyDown then
   begin
-    if (PickerSelection < 15) or
-      ((PickerSelection >= 16) and (PickerSelection < CurrencyCount)) then
+    if (PickerSelection < CurrencyPickerRows) or
+      ((PickerSelection >= CurrencyPickerRows + 1) and
+      (PickerSelection < CurrencyCount)) then
       Inc(PickerSelection);
     Exit;
   end;
   if Event.KeyCode = TUIKeyLeft then
   begin
-    if PickerSelection > 15 then
-      Dec(PickerSelection, 15);
+    if PickerSelection > CurrencyPickerRows then
+      Dec(PickerSelection, CurrencyPickerRows);
     Exit;
   end;
   if Event.KeyCode = TUIKeyRight then
   begin
-    if PickerSelection <= 15 then
-      Inc(PickerSelection, 15);
+    if (PickerSelection <= CurrencyPickerRows) and
+      (PickerSelection + CurrencyPickerRows <= CurrencyCount) then
+      Inc(PickerSelection, CurrencyPickerRows);
     Exit;
   end;
   if Event.KeyCode = TUIKeyPageUp then
   begin
-    PickerSelection := PickerSelection - 15;
+    PickerSelection := PickerSelection - CurrencyPickerRows;
     if PickerSelection < 1 then
       PickerSelection := 1;
     Exit;
   end;
   if Event.KeyCode = TUIKeyPageDown then
   begin
-    PickerSelection := PickerSelection + 15;
+    PickerSelection := PickerSelection + CurrencyPickerRows;
     if PickerSelection > CurrencyCount then
       PickerSelection := CurrencyCount;
   end;

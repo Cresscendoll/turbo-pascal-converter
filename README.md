@@ -10,7 +10,7 @@ Russian in one executable, with one event loop shared by keyboard and mouse.
 - Uses Free Pascal Compiler with `{$mode TP}`.
 - Runs directly on Windows 11; DOSBox, Lazarus, Delphi, and another runtime
   are not required.
-- Includes 30 currencies, with UAH prominently included.
+- Includes 32 currencies, with UAH, RUB, and BYN included.
 - Converts through a common USD pivot and accepts decimal points or commas.
 - Lets the user choose a pair, then shows only the historical years available
   for both currencies.
@@ -45,8 +45,10 @@ static Pascal source; neither rates nor UI assets are runtime data files.
 
 The snapshot label is **2026-09-05**. Values for 1992-2025 are annual
 reference averages where the source provides them. 2026 values are year-to-date
-averages through **2026-09-05**, not a completed annual average. BGN has no
-2026 record because Bulgaria adopted the euro on 2026-01-01.
+averages through **2026-09-05**, not completed annual averages. BGN has no
+2026 record because Bulgaria adopted the euro on 2026-01-01. RUB begins with a
+partial 1992 record; BYN begins in 1994 because that is the first available
+official series used by this snapshot.
 
 Each embedded value means **currency units per 1 USD**. A conversion is:
 
@@ -56,7 +58,7 @@ amount / source_units_per_usd * destination_units_per_usd
 
 UAH 1992-1995 is kept in nominal coupon-karbovanets, UAH 1996 is the
 post-reform hryvnia period, and the documented old/new unit changes are applied
-to PLN, RON, BGN, TRY, MXN, and BRL. See [SOURCES.md](SOURCES.md) for the
+to PLN, RON, BGN, BYN, TRY, MXN, and BRL. See [SOURCES.md](SOURCES.md) for the
 method, availability table, and official references.
 
 ## Compile and run

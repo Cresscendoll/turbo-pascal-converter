@@ -15,7 +15,7 @@ destination_amount = source_amount / source_UnitsPerUSD
 ```
 
 This keeps the direction explicit for currencies with very different scales.
-The generated unit contains 1,039 records. `RateKind` identifies a full-year
+The generated unit contains 1,107 records. `RateKind` identifies a full-year
 annual average, a partial transition-year average, or the 2026 year-to-date
 average.
 
@@ -41,10 +41,20 @@ average.
   1999-01-01 through 2025-12-31 were reciprocated and averaged by year. For
   BRL 2026, daily `D.USD+BRL.EUR.SP00.A` observations through 2026-09-05 were
   divided pairwise to obtain BRL per USD and then averaged.
+- [Bank of Russia XML data documentation](https://www.cbr.ru/development/SXML/)
+  and the official [2002 statistical bulletin](https://www.cbr.ru/collection/collection/file/39030/bbs2002_e.pdf)
+  supply RUB official rates. The bulletin's July-December 1992 and complete
+  1994-1995 monthly ruble-per-USD averages are used for the early records;
+  the CBR `XML_dynamic.asp` series `R01235` supplies the 165 published daily
+  observations through 2026-09-05.
+- [National Bank of the Republic of Belarus exchange-rate API documentation](https://www.nb-rb.by/apihelp/exrates.htm)
+  supplies the BYN/USD dynamics endpoint. Its 248 dated observations from
+  2026-01-01 through 2026-09-05, including the bank's carried-forward
+  official values, are averaged arithmetically for the BYN YTD record.
 
 ## Currency coverage
 
-The menu has 30 currencies. Availability is intentionally currency-specific;
+The menu has 32 currencies. Availability is intentionally currency-specific;
 the converter displays the intersection for the selected pair.
 
 | # | Code | Embedded years | Historical-unit note |
@@ -79,6 +89,8 @@ the converter displays the intersection for the selected pair.
 | 28 | BRL | 1994-2026 | Real partial period from 1994-07-01 |
 | 29 | ZAR | 1992-2026 | South African rand |
 | 30 | THB | 1992-2026 | Thai baht |
+| 31 | RUB | 1992-2026 | Partial official ruble series from July 1992 |
+| 32 | BYN | 1994-2026 | BYB through 1999; BYR in 2000-2015; BYN from 2016 |
 
 ## Historical handling
 
@@ -114,6 +126,15 @@ scaled back to the nominal unit for the old period:
 - **Euro and Czech koruna:** the [ECB euro introduction page](https://www.ecb.europa.eu/euro/intro/html/index.en.html)
   dates the euro's launch to 1999-01-01, while the IMF series for CZK begins
   in 1993; the UI reports those natural availability boundaries.
+- **Russian ruble:** the [Bank of Russia historical-rate service](https://www.cbr.ru/development/SXML/)
+  establishes the official daily-rate history from 01.07.1992. RUB 1992 is
+  therefore marked partial; 1994-1995 use the official monthly table, and
+  1993 plus 1996-2025 use the IMF annual series.
+- **Belarusian ruble:** the [National Bank of Belarus denomination notice](https://www.nb-rb.by/coinsbanknotes/banknotes/exchange.htm)
+  records 1,000 old rubles = 1 ruble from 01.01.2000 and 10,000 2000-series
+  rubles = 1 2009-series ruble from 01.07.2016. IMF observations are stored
+  in modern BYN units and are scaled back to nominal BYB/BYR for the older
+  periods; the UI exposes those units in result labels.
 
 ## Caveats
 
@@ -121,8 +142,8 @@ scaled back to the nominal unit for the old period:
   card, or intraday prices.
 - Annual reference data can be revised by its publisher. This repository keeps
   the values frozen for the stated development snapshot.
-- 2026 is preliminary YTD data through 2026-09-05. NBU and ECB observation
-  calendars differ, and BGN 2026 is deliberately absent.
+- 2026 is preliminary YTD data through 2026-09-05. NBU, ECB, CBR, and NBRB
+  observation calendars differ, and BGN 2026 is deliberately absent.
 - Transition-year records are labeled partial in the application. They should
   not be interpreted as a single-unit full-year average when a redenomination
   happened during the year.

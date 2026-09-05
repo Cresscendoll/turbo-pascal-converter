@@ -349,9 +349,11 @@ begin
     25: CurrencyCode := 'SGD';
     26: CurrencyCode := 'HKD';
     27: CurrencyCode := 'MXN';
-    28: CurrencyCode := 'BRL';
-    29: CurrencyCode := 'ZAR';
-    30: CurrencyCode := 'THB';
+      28: CurrencyCode := 'BRL';
+      29: CurrencyCode := 'ZAR';
+      30: CurrencyCode := 'THB';
+      31: CurrencyCode := 'RUB';
+      32: CurrencyCode := 'BYN';
   else
     CurrencyCode := '???';
   end;
@@ -391,6 +393,8 @@ begin
       28: CurrencyName := 'Brazilian Real';
       29: CurrencyName := 'South African Rand';
       30: CurrencyName := 'Thai Baht';
+      31: CurrencyName := 'Russian Ruble';
+      32: CurrencyName := 'Belarusian Ruble';
     end
   else
     case CurrencyIndex of
@@ -424,6 +428,8 @@ begin
       28: CurrencyName := 'Бразильский реал';
       29: CurrencyName := 'Южноафриканский рэнд';
       30: CurrencyName := 'Тайский бат';
+      31: CurrencyName := 'Российский рубль';
+      32: CurrencyName := 'Белорусский рубль';
     end;
 end;
 
@@ -481,6 +487,18 @@ begin
           HistoricalUnit := 'BRL: real from 01.07.1994'
         else
           HistoricalUnit := 'BRL: Brazilian real';
+      31:
+        if Year = 1992 then
+          HistoricalUnit := 'RUB: Russian ruble (partial from 01.07.1992)'
+        else
+          HistoricalUnit := 'RUB: Russian ruble';
+      32:
+        if Year <= 1999 then
+          HistoricalUnit := 'BYB: old ruble (10,000,000 BYB = 1 BYN)'
+        else if Year <= 2015 then
+          HistoricalUnit := 'BYR: ruble after 01.01.2000 (10,000 BYR = 1 BYN)'
+        else
+          HistoricalUnit := 'BYN: ruble after 01.07.2016';
     end
   else
     case CurrencyIndex of
@@ -531,6 +549,18 @@ begin
           HistoricalUnit := 'BRL: реал с 01.07.1994'
         else
           HistoricalUnit := 'BRL: бразильский реал';
+      31:
+        if Year = 1992 then
+          HistoricalUnit := 'RUB: российский рубль (частично с 01.07.1992)'
+        else
+          HistoricalUnit := 'RUB: российский рубль';
+      32:
+        if Year <= 1999 then
+          HistoricalUnit := 'BYB: старый рубль (10 000 000 BYB = 1 BYN)'
+        else if Year <= 2015 then
+          HistoricalUnit := 'BYR: рубль после 01.01.2000 (10 000 BYR = 1 BYN)'
+        else
+          HistoricalUnit := 'BYN: рубль после 01.07.2016';
     end;
 end;
 
@@ -573,6 +603,14 @@ begin
         else
           HistoricalAmountName := 'Mexican peso';
       28: HistoricalAmountName := 'Brazilian real';
+      31: HistoricalAmountName := 'Russian ruble';
+      32:
+        if Year <= 1999 then
+          HistoricalAmountName := 'old Belarusian ruble'
+        else if Year <= 2015 then
+          HistoricalAmountName := 'Belarusian ruble (BYR)'
+        else
+          HistoricalAmountName := 'Belarusian ruble (BYN)';
     end
   else
     case CurrencyIndex of
@@ -609,6 +647,14 @@ begin
         else
           HistoricalAmountName := 'мексиканское песо';
       28: HistoricalAmountName := 'бразильский реал';
+      31: HistoricalAmountName := 'российский рубль';
+      32:
+        if Year <= 1999 then
+          HistoricalAmountName := 'старый белорусский рубль'
+        else if Year <= 2015 then
+          HistoricalAmountName := 'белорусский рубль (BYR)'
+        else
+          HistoricalAmountName := 'белорусский рубль (BYN)';
     end;
 end;
 
