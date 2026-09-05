@@ -67,13 +67,13 @@ begin
       tkStaticData: LocalizedText := 'static data';
       tkNoNetwork: LocalizedText := 'no network access';
       tkCoverageLabel: LocalizedText := 'Coverage';
-      tkYtdThrough: LocalizedText := '2026 is YTD through';
+      tkYtdThrough: LocalizedText := '2026 uses the January rate';
       tkCurrencyIntro1: LocalizedText :=
-        'Thirty currencies are embedded as historical USD-pivot series.';
+        'Thirty-two currencies are embedded as start-of-year USD-pivot series.';
       tkCurrencyIntro2: LocalizedText :=
         'Year availability is checked after both currencies are selected.';
       tkCurrencyNote1: LocalizedText :=
-        'EUR begins in 1999; CZK begins in 1993; BRL begins in 1994.';
+        'EUR starts in 1999; UAH and BYN in 1996; RUB in 1993.';
       tkCurrencyNote2: LocalizedText :=
         'BGN has no 2026 record after Bulgaria''s euro changeover.';
       tkCancelHint: LocalizedText :=
@@ -85,7 +85,7 @@ begin
       tkDestinationPrompt: LocalizedText :=
         'Select destination currency (0 = main menu): ';
       tkInvalidCurrency: LocalizedText :=
-        'Invalid currency number. Enter 1 to 30, or 0 to cancel.';
+        'Invalid currency number. Enter 1 to 32, or 0 to cancel.';
       tkAmountPrompt: LocalizedText :=
         'Enter amount (positive, point or comma): ';
       tkInvalidAmount: LocalizedText :=
@@ -93,7 +93,7 @@ begin
       tkPairLabel: LocalizedText := 'Pair';
       tkAvailableYearsLabel: LocalizedText := 'Available years';
       tkYearInstruction: LocalizedText :=
-        'The year is an annual average, a transition average, or 2026 YTD.';
+        'The selected year uses the first official January rate, not an annual average.';
       tkYearPrompt: LocalizedText := 'Select year for conversion (0 = main menu): ';
       tkUnavailableYear: LocalizedText :=
         'This year is unavailable for this pair. Available ranges: ';
@@ -130,24 +130,24 @@ begin
       tkNotesCalculationModel: LocalizedText :=
         'The calculation is source currency -> USD -> destination currency.';
       tkNotesUAH1: LocalizedText :=
-        'UAH 1992-1995 uses official NBU period averages for the';
+        'UAH starts here in 1996; the 01.01.1996 record is still the';
       tkNotesUAH2: LocalizedText :=
-        'coupon-karbovanets. 1996 is the Sep-Dec hryvnia period.';
+        'coupon-karbovanets. 1992-1995 have no January source record.';
       tkNotesNaturalBoundaries: LocalizedText :=
-        'EUR starts in 1999, CZK in 1993, and BRL in July 1994.';
+        'EUR starts in 1999, BRL in 1995, MXN in 1994, and RUB in 1993.';
       tkNotesRedenomTitle: LocalizedText := 'Redenomination notes:';
       tkNotesRedenom1: LocalizedText :=
         'PLZ 10,000:1 on 01.01.1995; MXP 1,000:1 on 01.01.1993.';
       tkNotesRedenom2: LocalizedText :=
-        'BGL 1,000:1 on 05.07.1999; ROL 10,000:1 on 01.07.2005.';
+        'At January 1, 1999 BGN still means old BGL; new BGN starts in 2000.';
       tkNotesRedenom3: LocalizedText :=
-        'TRL lost six zeroes on 01.01.2005.';
+        'At January 1, 2005 RON still means old ROL; new RON starts in 2006.';
       tkNotesYtd1: LocalizedText :=
-        '2026 values are YTD averages through 05.09.2026, not a';
+        'Every year uses the first official January observation.';
       tkNotesYtd2: LocalizedText :=
-        'complete annual average. BGN 2026 is intentionally unavailable';
+        'If January 1 has no published quote, the first available January';
       tkNotesYtd3: LocalizedText :=
-        'because Bulgaria adopted the euro on 01.01.2026.';
+        'quote is used. No annual or YTD averages are embedded.';
       tkNotesSources: LocalizedText :=
         'Sources and transformation details are documented in SOURCES.md.';
       tkThanks: LocalizedText :=
@@ -209,13 +209,13 @@ begin
       tkStaticData: LocalizedText := 'статические данные';
       tkNoNetwork: LocalizedText := 'без доступа к сети';
       tkCoverageLabel: LocalizedText := 'Охват';
-      tkYtdThrough: LocalizedText := '2026 - данные по';
+      tkYtdThrough: LocalizedText := '2026 - курс на январь';
       tkCurrencyIntro1: LocalizedText :=
-        'Встроены данные для 30 валют; расчёт идёт через USD.';
+        'Встроены данные для 32 валют; расчёт идёт через USD на начало года.';
       tkCurrencyIntro2: LocalizedText :=
         'Доступность лет проверяется после выбора обеих валют.';
       tkCurrencyNote1: LocalizedText :=
-        'EUR доступен с 1999 года; CZK - с 1993; BRL - с 1994.';
+        'EUR доступен с 1999 года; UAH и BYN - с 1996; RUB - с 1993.';
       tkCurrencyNote2: LocalizedText :=
         'Для BGN нет записи за 2026 год после перехода Болгарии на евро.';
       tkCancelHint: LocalizedText :=
@@ -227,7 +227,7 @@ begin
       tkDestinationPrompt: LocalizedText :=
         'Выберите валюту назначения (0 = в главное меню): ';
       tkInvalidCurrency: LocalizedText :=
-        'Неверный номер валюты. Введите число от 1 до 30 или 0 для отмены.';
+        'Неверный номер валюты. Введите число от 1 до 32 или 0 для отмены.';
       tkAmountPrompt: LocalizedText :=
         'Введите сумму (положительное число, точка или запятая): ';
       tkInvalidAmount: LocalizedText :=
@@ -235,7 +235,7 @@ begin
       tkPairLabel: LocalizedText := 'Пара';
       tkAvailableYearsLabel: LocalizedText := 'Доступные годы';
       tkYearInstruction: LocalizedText :=
-        'Год: полный средний, переходный неполный или 2026 по дату.';
+        'Выбран год с первым официальным январским курсом, не средним за год.';
       tkYearPrompt: LocalizedText := 'Выберите год для расчёта (0 = в главное меню): ';
       tkUnavailableYear: LocalizedText :=
         'Этот год недоступен для этой пары. Доступные диапазоны: ';
@@ -265,16 +265,16 @@ begin
       tkInvalidMenu: LocalizedText := 'Неверный пункт меню. Введите 0, 1, 2, 3 или 4.';
       tkNotesRateConvention: LocalizedText := 'Правило курса: встроенное значение - число единиц валюты за 1 USD.';
       tkNotesCalculationModel: LocalizedText := 'Расчёт: исходная валюта -> USD -> валюта назначения.';
-      tkNotesUAH1: LocalizedText := 'Значения UAH за 1992-1995 годы - официальные средние курсы НБУ для';
-      tkNotesUAH2: LocalizedText := 'украинского купоно-карбованца. 1996 год - период гривны с сентября по декабрь.';
-      tkNotesNaturalBoundaries: LocalizedText := 'EUR доступен с 1999 года, CZK - с 1993, BRL - с июля 1994 года.';
+      tkNotesUAH1: LocalizedText := 'UAH в этой версии доступен с 1996 года; курс на 01.01.1996 - это';
+      tkNotesUAH2: LocalizedText := 'купоно-карбованец. Для 1992-1995 нет январской записи источника.';
+      tkNotesNaturalBoundaries: LocalizedText := 'EUR - с 1999 года, BRL - с 1995, MXN - с 1994, RUB - с 1993.';
       tkNotesRedenomTitle: LocalizedText := 'Заметки о деноминации:';
       tkNotesRedenom1: LocalizedText := 'PLZ 10 000:1 с 01.01.1995; MXP 1 000:1 с 01.01.1993.';
-      tkNotesRedenom2: LocalizedText := 'BGL 1 000:1 с 05.07.1999; ROL 10 000:1 с 01.07.2005.';
-      tkNotesRedenom3: LocalizedText := 'TRL потерял шесть нулей с 01.01.2005.';
-      tkNotesYtd1: LocalizedText := 'Значения 2026 года - средние за период по 05.09.2026, а не';
-      tkNotesYtd2: LocalizedText := 'полный среднегодовой курс. Запись BGN за 2026 год не включена';
-      tkNotesYtd3: LocalizedText := 'поскольку Болгария перешла на евро 01.01.2026.';
+      tkNotesRedenom2: LocalizedText := 'На 1 января 1999 года BGN ещё означает старый BGL; новый BGN - с 2000.';
+      tkNotesRedenom3: LocalizedText := 'На 1 января 2005 года RON ещё означает старый ROL; новый RON - с 2006.';
+      tkNotesYtd1: LocalizedText := 'Для каждого года берётся первая официальная январская запись.';
+      tkNotesYtd2: LocalizedText := 'Если на 1 января курса нет, берётся первая доступная запись января.';
+      tkNotesYtd3: LocalizedText := 'Средние за год и YTD-средние в данные больше не встраиваются.';
       tkNotesSources: LocalizedText := 'Источники и преобразования описаны в SOURCES.md.';
       tkThanks: LocalizedText := 'Спасибо за использование исторического конвертера.';
       tkClose: LocalizedText := 'Нажмите ENTER, чтобы закрыть программу...';
@@ -441,10 +441,8 @@ begin
   if Language = LanguageEnglish then
     case CurrencyIndex of
       1:
-        if Year <= 1995 then
+        if Year <= 1996 then
           HistoricalUnit := 'UAH: coupon-karbovanets (nominal)'
-        else if Year = 1996 then
-          HistoricalUnit := 'UAH: hryvnia after 02.09.1996'
         else
           HistoricalUnit := 'UAH: hryvnia';
       3: HistoricalUnit := 'EUR: euro reference unit';
@@ -459,17 +457,13 @@ begin
         else
           HistoricalUnit := 'CZK: Czech koruna';
       14:
-        if Year <= 2004 then
+        if Year <= 2005 then
           HistoricalUnit := 'ROL: old leu (10,000 ROL = 1 RON)'
-        else if Year = 2005 then
-          HistoricalUnit := 'RON: new leu from 01.07.2005'
         else
           HistoricalUnit := 'RON: new Romanian leu';
       15:
-        if Year <= 1998 then
+        if Year <= 1999 then
           HistoricalUnit := 'BGL: old lev (1,000 BGL = 1 BGN)'
-        else if Year = 1999 then
-          HistoricalUnit := 'BGN: new lev from 05.07.1999'
         else
           HistoricalUnit := 'BGN: new Bulgarian lev';
       19:
@@ -483,19 +477,16 @@ begin
         else
           HistoricalUnit := 'MXN: new Mexican peso';
       28:
-        if Year = 1994 then
-          HistoricalUnit := 'BRL: real from 01.07.1994'
-        else
-          HistoricalUnit := 'BRL: Brazilian real';
+        HistoricalUnit := 'BRL: Brazilian real';
       31:
-        if Year = 1992 then
-          HistoricalUnit := 'RUB: Russian ruble (partial from 01.07.1992)'
+        if Year <= 1997 then
+          HistoricalUnit := 'RUR: old Russian ruble (1,000 RUR = 1 RUB)'
         else
           HistoricalUnit := 'RUB: Russian ruble';
       32:
         if Year <= 1999 then
           HistoricalUnit := 'BYB: old ruble (10,000,000 BYB = 1 BYN)'
-        else if Year <= 2015 then
+        else if Year <= 2016 then
           HistoricalUnit := 'BYR: ruble after 01.01.2000 (10,000 BYR = 1 BYN)'
         else
           HistoricalUnit := 'BYN: ruble after 01.07.2016';
@@ -503,10 +494,8 @@ begin
   else
     case CurrencyIndex of
       1:
-        if Year <= 1995 then
+        if Year <= 1996 then
           HistoricalUnit := 'UAH: украинский купоно-карбованец (номинал)'
-        else if Year = 1996 then
-          HistoricalUnit := 'UAH: гривна после 02.09.1996'
         else
           HistoricalUnit := 'UAH: украинская гривна';
       3: HistoricalUnit := 'EUR: справочная евро';
@@ -521,17 +510,13 @@ begin
         else
           HistoricalUnit := 'CZK: чешская крона';
       14:
-        if Year <= 2004 then
+        if Year <= 2005 then
           HistoricalUnit := 'ROL: старый лей (10 000 ROL = 1 RON)'
-        else if Year = 2005 then
-          HistoricalUnit := 'RON: новый лей с 01.07.2005'
         else
           HistoricalUnit := 'RON: новый румынский лей';
       15:
-        if Year <= 1998 then
+        if Year <= 1999 then
           HistoricalUnit := 'BGL: старый лев (1 000 BGL = 1 BGN)'
-        else if Year = 1999 then
-          HistoricalUnit := 'BGN: новый лев с 05.07.1999'
         else
           HistoricalUnit := 'BGN: новый болгарский лев';
       19:
@@ -545,19 +530,16 @@ begin
         else
           HistoricalUnit := 'MXN: новое мексиканское песо';
       28:
-        if Year = 1994 then
-          HistoricalUnit := 'BRL: реал с 01.07.1994'
-        else
-          HistoricalUnit := 'BRL: бразильский реал';
+        HistoricalUnit := 'BRL: бразильский реал';
       31:
-        if Year = 1992 then
-          HistoricalUnit := 'RUB: российский рубль (частично с 01.07.1992)'
+        if Year <= 1997 then
+          HistoricalUnit := 'RUR: старый российский рубль (1 000 RUR = 1 RUB)'
         else
           HistoricalUnit := 'RUB: российский рубль';
       32:
         if Year <= 1999 then
           HistoricalUnit := 'BYB: старый рубль (10 000 000 BYB = 1 BYN)'
-        else if Year <= 2015 then
+        else if Year <= 2016 then
           HistoricalUnit := 'BYR: рубль после 01.01.2000 (10 000 BYR = 1 BYN)'
         else
           HistoricalUnit := 'BYN: рубль после 01.07.2016';
@@ -571,10 +553,8 @@ begin
   if Language = LanguageEnglish then
     case CurrencyIndex of
       1:
-        if Year <= 1995 then
+        if Year <= 1996 then
           HistoricalAmountName := 'Ukrainian coupon-karbovanets'
-        else if Year = 1996 then
-          HistoricalAmountName := 'Ukrainian hryvnia (Sep-Dec 1996)'
         else
           HistoricalAmountName := 'Ukrainian hryvnia';
       11:
@@ -583,14 +563,14 @@ begin
         else
           HistoricalAmountName := 'Polish zloty';
       14:
-        if Year <= 2004 then
+        if Year <= 2005 then
           HistoricalAmountName := 'old Romanian leu'
-        else if Year = 2005 then
+        else
           HistoricalAmountName := 'new Romanian leu';
       15:
-        if Year <= 1998 then
+        if Year <= 1999 then
           HistoricalAmountName := 'old Bulgarian lev'
-        else if Year = 1999 then
+        else
           HistoricalAmountName := 'new Bulgarian lev';
       19:
         if Year <= 2004 then
@@ -598,16 +578,20 @@ begin
         else
           HistoricalAmountName := 'new Turkish lira';
       27:
-        if Year = 1992 then
+        if Year <= 1993 then
           HistoricalAmountName := 'old Mexican peso'
         else
           HistoricalAmountName := 'Mexican peso';
       28: HistoricalAmountName := 'Brazilian real';
-      31: HistoricalAmountName := 'Russian ruble';
+      31:
+        if Year <= 1997 then
+          HistoricalAmountName := 'old Russian ruble'
+        else
+          HistoricalAmountName := 'Russian ruble';
       32:
         if Year <= 1999 then
           HistoricalAmountName := 'old Belarusian ruble'
-        else if Year <= 2015 then
+        else if Year <= 2016 then
           HistoricalAmountName := 'Belarusian ruble (BYR)'
         else
           HistoricalAmountName := 'Belarusian ruble (BYN)';
@@ -615,10 +599,8 @@ begin
   else
     case CurrencyIndex of
       1:
-        if Year <= 1995 then
+        if Year <= 1996 then
           HistoricalAmountName := 'украинский купоно-карбованец'
-        else if Year = 1996 then
-          HistoricalAmountName := 'украинская гривна (сентябрь-декабрь 1996)'
         else
           HistoricalAmountName := 'украинская гривна';
       11:
@@ -627,12 +609,12 @@ begin
         else
           HistoricalAmountName := 'польский злотый';
       14:
-        if Year <= 2004 then
+        if Year <= 2005 then
           HistoricalAmountName := 'старый румынский лей'
         else
           HistoricalAmountName := 'новый румынский лей';
       15:
-        if Year <= 1998 then
+        if Year <= 1999 then
           HistoricalAmountName := 'старый болгарский лев'
         else
           HistoricalAmountName := 'новый болгарский лев';
@@ -642,16 +624,20 @@ begin
         else
           HistoricalAmountName := 'новая турецкая лира';
       27:
-        if Year = 1992 then
+        if Year <= 1993 then
           HistoricalAmountName := 'старое мексиканское песо'
         else
           HistoricalAmountName := 'мексиканское песо';
       28: HistoricalAmountName := 'бразильский реал';
-      31: HistoricalAmountName := 'российский рубль';
+      31:
+        if Year <= 1997 then
+          HistoricalAmountName := 'старый российский рубль'
+        else
+          HistoricalAmountName := 'российский рубль';
       32:
         if Year <= 1999 then
           HistoricalAmountName := 'старый белорусский рубль'
-        else if Year <= 2015 then
+        else if Year <= 2016 then
           HistoricalAmountName := 'белорусский рубль (BYR)'
         else
           HistoricalAmountName := 'белорусский рубль (BYN)';
@@ -662,19 +648,17 @@ function RateKindText(RateKind: Integer; Language: TLanguage): String;
 begin
   if Language = LanguageEnglish then
     case RateKind of
-      1: RateKindText := 'full-year annual average';
-      2: RateKindText := 'partial-year transition average';
-      3: RateKindText := '2026 year-to-date average through 05.09.2026';
+      4: RateKindText :=
+        'first official January rate (or first January quote after Jan 1)';
     else
-      RateKindText := 'embedded historical average';
+      RateKindText := 'embedded start-of-year rate';
     end
   else
     case RateKind of
-      1: RateKindText := 'средний курс за полный год';
-      2: RateKindText := 'средний курс за переходный неполный год';
-      3: RateKindText := 'средний курс за 2026 год по 05.09.2026';
+      4: RateKindText :=
+        'первый официальный январский курс (или первая запись после 1 января)';
     else
-      RateKindText := 'встроенный исторический курс';
+      RateKindText := 'встроенный курс на начало года';
     end;
 end;
 

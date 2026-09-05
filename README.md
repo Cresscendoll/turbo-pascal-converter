@@ -1,65 +1,52 @@
 # Turbo Pascal Historical Currency Converter
 
-A small retro-style, offline historical currency converter written in Pascal.
-It keeps the straightforward calculations of a classic console utility, while
-running as a native Windows 11 console TUI. The interface supports English and
-Russian in one executable, with one event loop shared by keyboard and mouse.
+A small retro-style, offline historical currency converter written entirely
+in Pascal. It runs as a native Windows 11 console TUI and keeps the source
+close to classic Turbo Pascal style.
 
 ## What it does
 
 - Uses Free Pascal Compiler with `{$mode TP}`.
-- Runs directly on Windows 11; DOSBox, Lazarus, Delphi, and another runtime
+- Runs directly on Windows 11; DOSBox, Lazarus, Delphi, and a separate runtime
   are not required.
-- Includes 32 currencies, with UAH, RUB, and BYN included.
+- Includes 32 currencies, including UAH, RUB, and BYN.
 - Converts through a common USD pivot and accepts decimal points or commas.
-- Lets the user choose a pair, then shows only the historical years available
-  for both currencies.
-- Labels transition years, redenominated units, partial-year averages, and the
-  2026 year-to-date record.
-- Starts with an English/Russian selector using LEFT/RIGHT and ENTER, and can
-  change language from the clickable header or the main action row.
-- Provides focusable source, destination, year, amount, convert, back, clear,
-  language, and quit controls. Currency pickers use two clickable columns and
-  the year picker uses a clickable five-column grid.
-- Accepts Tab/Shift+Tab, arrows, Enter/Space, Escape, Home/End/Page Up/Page
-  Down, numeric shortcuts, and amount editing with digits, point/comma,
-  backspace, delete, and cursor movement.
-- Uses the Windows console input API for left-click and double-click events;
-  Quick Edit is disabled while the TUI is active and the original console
-  input mode, cursor, attributes, position, and code pages are restored on
-  exit.
-- Keeps Pascal source files in UTF-8 and sets the native Windows console to
-  UTF-8 at startup so Cyrillic text renders correctly.
+- Shows only the years for which both selected currencies have embedded data.
+- Uses the first official January observation for the selected year. If
+  1 January has no published quote, the first available official January quote
+  is used. It does not calculate an annual average or a YTD average.
+- Keeps historical units visible around redenominations and currency changes.
+- Provides English/Russian labels, keyboard controls, and native Windows
+  console mouse input.
 
 The TUI is designed for a console viewport of at least **72 x 24**
 characters. A smaller window shows a localized resize message and keeps the
 keyboard path available. If native mouse input is unavailable, the same
-controls remain fully usable from the keyboard.
+controls remain usable from the keyboard.
 
 The application code is in `currency_converter.pas`. The native console TUI
-adapter is in `tui.pas`; embedded historical data is in the Pascal unit
-`historical_rates.pas`; localized resources are in `localization.pas`. All are
-static Pascal source; neither rates nor UI assets are runtime data files.
+adapter is in `tui.pas`; embedded rates are in `historical_rates.pas`;
+localized resources are in `localization.pas`. All runtime data is compiled
+into Pascal source.
 
 ## Historical data
 
-The snapshot label is **2026-09-05**. Values for 1992-2025 are annual
-reference averages where the source provides them. 2026 values are year-to-date
-averages through **2026-09-05**, not completed annual averages. BGN has no
-2026 record because Bulgaria adopted the euro on 2026-01-01. RUB begins with a
-partial 1992 record; BYN begins in 1994 because that is the first available
-official series used by this snapshot.
+The development snapshot is labeled **2026-09-05**. The generated database
+contains **1,070** start-of-year records. The snapshot date identifies the
+development cutoff; the selected 2026 rate is still the first January
+observation, not a September YTD average.
 
-Each embedded value means **currency units per 1 USD**. A conversion is:
+Every stored value means **currency units per 1 USD**. A conversion is:
 
 ```text
 amount / source_units_per_usd * destination_units_per_usd
 ```
 
-UAH 1992-1995 is kept in nominal coupon-karbovanets, UAH 1996 is the
-post-reform hryvnia period, and the documented old/new unit changes are applied
-to PLN, RON, BGN, BYN, TRY, MXN, and BRL. See [SOURCES.md](SOURCES.md) for the
-method, availability table, and official references.
+Availability is intentionally currency-specific. For example, UAH starts in
+1996 in this January-rate dataset because the embedded NBU daily series has no
+January record for 1992-1995; EUR starts in 1999; RUB starts in 1993; BGN has
+no 2026 record after Bulgaria's euro changeover. Historical denomination and
+source details are documented in [SOURCES.md](SOURCES.md).
 
 ## Compile and run
 
@@ -71,7 +58,7 @@ build\currency_converter.exe
 ```
 
 For the FPC 3.2.2 Windows installation used for local validation, the native
-Win64 command was:
+Win64 command is:
 
 ```text
 C:\FPC\3.2.2\bin\i386-win32\ppcrossx64.exe -B -O2 -vw -Fu. -FE..\build-x64 -FU..\build-x64 -o..\build-x64\currency_converter.exe currency_converter.pas

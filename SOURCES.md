@@ -2,7 +2,7 @@
 
 This file documents the development-time research used to generate the static
 Pascal unit `historical_rates.pas`. The executable does not read these URLs or
-make any network request. The data cutoff is **2026-09-05**.
+make any network request. The development cutoff is **2026-09-05**.
 
 ## Rate convention
 
@@ -14,54 +14,65 @@ destination_amount = source_amount / source_UnitsPerUSD
                      * destination_UnitsPerUSD
 ```
 
-This keeps the direction explicit for currencies with very different scales.
-The generated unit contains 1,107 records. `RateKind` identifies a full-year
-annual average, a partial transition-year average, or the 2026 year-to-date
-average.
+The generated unit contains **1,070** records. All records use
+`RateKindStartOfYear`.
+
+## What a selected year means
+
+This version does not use annual averages and does not use a 2026 YTD average.
+For each currency and year, the generator selects the first valid official
+observation dated in January. When 1 January is a holiday or a source has no
+quote on that date, this is the first official January observation after
+1 January. If the source has no valid January observation, that currency-year
+is omitted and the UI reports the resulting pair-specific gap.
+
+The 2026 snapshot label remains **2026-09-05** because that is the development
+cutoff, but the 2026 value is still the January value. It is not an average of
+the year through September.
 
 ## Primary data sources
 
-- [IMF Exchange Rates dataset](https://data.imf.org/Datasets/ER) and the
-  [IMF API documentation](https://data.imf.org/en/Resource-Pages/IMF-API).
-  The development query used the IMF SDMX series
-  `XDC_USD.PA_RT.A` (period-average national currency units per USD) for
-  annual 1992-2025 values, plus monthly `XDC_USD.PA_RT.M` values for the
-  explicitly documented transition segments.
+- [Federal Reserve H.10 data download](https://www.federalreserve.gov/datadownload/choose.aspx?rel=h10)
+  supplied daily dollar exchange-rate series for EUR, GBP, AUD, NZD, BRL, CAD,
+  CNY, DKK, HKD, INR, JPY, KRW, MXN, NOK, SEK, SGD, CHF, THB, and ZAR. The
+  H.10 series that quote USD per currency are inverted; series already quoted
+  as currency per USD are used directly. Only the first valid January record
+  for each year is embedded.
 - [National Bank of Ukraine open-data API documentation](https://bank.gov.ua/en/open-data/api-dev)
-  and the [NBU daily exchange-rate range endpoint](https://bank.gov.ua/NBU_Exchange/exchange_site?start=20260101&end=20260905&sort=exchangedate&order=asc&json).
-  The endpoint supplied the 2026 daily UAH reference series through
-  2026-09-05. The arithmetic average uses the 248 dated observations returned
-  by the endpoint, including its published carry-forward values.
-- [NBU 2002 annual report](https://bank.gov.ua/admin_uploads/article/A_report_2002e.pdf?v=6),
-  table of period-average exchange rates, for the nominal Ukrainian
-  coupon-karbovanets values used for 1992-1995: 208, 4,539, 31,700, and
-  147,307 units per USD respectively.
-- [ECB Data API](https://data-api.ecb.europa.eu/service/data/EXR/) for EUR and
-  BRL observations. For EUR, daily `D.USD.EUR.SP00.A` observations from
-  1999-01-01 through 2025-12-31 were reciprocated and averaged by year. For
-  BRL 2026, daily `D.USD+BRL.EUR.SP00.A` observations through 2026-09-05 were
-  divided pairwise to obtain BRL per USD and then averaged.
+  and its [daily exchange-rate range endpoint](https://bank.gov.ua/NBU_Exchange/exchange_site?start=20260101&end=20260905&sort=exchangedate&order=asc&json)
+  supplied January observations from 1996 onward for UAH and the currencies
+  whose daily series are not present in H.10: PLN, CZK, HUF, RON, BGN, TRY,
+  and ILS. The USD quote on the same official date is used to form each
+  currency's `UnitsPerUSD` value.
 - [Bank of Russia XML data documentation](https://www.cbr.ru/development/SXML/)
-  and the official [2002 statistical bulletin](https://www.cbr.ru/collection/collection/file/39030/bbs2002_e.pdf)
-  supply RUB official rates. The bulletin's July-December 1992 and complete
-  1994-1995 monthly ruble-per-USD averages are used for the early records;
-  the CBR `XML_dynamic.asp` series `R01235` supplies the 165 published daily
-  observations through 2026-09-05.
-- [National Bank of the Republic of Belarus exchange-rate API documentation](https://www.nb-rb.by/apihelp/exrates.htm)
-  supplies the BYN/USD dynamics endpoint. Its 248 dated observations from
-  2026-01-01 through 2026-09-05, including the bank's carried-forward
-  official values, are averaged arithmetically for the BYN YTD record.
+  and the official [dynamic USD/RUB series](https://www.cbr.ru/scripts/XML_dynamic.asp?date_req1=01/01/1992&date_req2=05/09/2026&VAL_NM_RQ=R01235)
+  supplied the first January official RUB value for 1993-2026. The first
+  official RUB observation in the source is 01.07.1992, so RUB 1992 is left
+  unavailable rather than treating a July value as a January value.
+- [National Bank of the Republic of Belarus API documentation](https://www.nb-rb.by/apihelp/exrates.htm)
+  and the [official-rate dynamics API](https://api.nbrb.by/exrates/rates/dynamics/145?startdate=2026-01-01&enddate=2026-09-05)
+  supplied the direct BYN/USD quote for 1996-2021; the successor USD series
+  (ID 431) supplied 2022-2026. The nominal historical unit is kept at each
+  1 January boundary.
+- The [Saudi Central Bank](https://www.sama.gov.sa/en-US/MediaCenter/News/Pages/news-557.aspx)
+  documents the SAR peg at 3.75 per USD. The [Central Bank of the UAE](https://centralbank.ae/en/our-operations/monetary-policy-and-domestic-markets/domestic-market-operations/)
+  documents the USD/AED peg; the embedded central parity is 3.6725 AED per
+  USD. These fixed official parities are valid start-of-year values for the
+  selected 1992-2026 range.
+
+The sources above are institutional reference data, not retail cash-desk,
+card, or intraday prices.
 
 ## Currency coverage
 
-The menu has 32 currencies. Availability is intentionally currency-specific;
-the converter displays the intersection for the selected pair.
+The menu contains 32 currencies. Availability is intentionally currency-
+specific; the converter displays the intersection for the selected pair.
 
-| # | Code | Embedded years | Historical-unit note |
+| # | Code | Embedded years | January-rate interpretation |
 |---:|:---:|:---:|---|
-| 1 | UAH | 1992-2026 | Coupon-karbovanets in 1992-1995; hryvnia partial period in 1996 |
-| 2 | USD | 1992-2026 | US dollar pivot |
-| 3 | EUR | 1999-2026 | Euro reference unit from 1999 |
+| 1 | UAH | 1996-2026 | Coupon-karbovanets on 01.01.1996; hryvnia from 1997 |
+| 2 | USD | 1992-2026 | USD pivot, exactly 1 |
+| 3 | EUR | 1999-2026 | Euro reference unit |
 | 4 | GBP | 1992-2026 | Pound sterling |
 | 5 | CHF | 1992-2026 | Swiss franc |
 | 6 | JPY | 1992-2026 | Japanese yen |
@@ -69,81 +80,69 @@ the converter displays the intersection for the selected pair.
 | 8 | CAD | 1992-2026 | Canadian dollar |
 | 9 | AUD | 1992-2026 | Australian dollar |
 | 10 | NZD | 1992-2026 | New Zealand dollar |
-| 11 | PLN | 1992-2026 | Old PLZ in 1992-1994; PLN from 1995 |
-| 12 | CZK | 1993-2026 | Czech koruna series begins in 1993 |
-| 13 | HUF | 1992-2026 | Hungarian forint |
-| 14 | RON | 1992-2026 | Old ROL in 1992-2004; new RON partial in 2005 |
-| 15 | BGN | 1992-2025 | Old BGL in 1992-1998; new BGN partial in 1999; no 2026 record |
+| 11 | PLN | 1996-2026 | New zloty; NBU used legacy `PLZ` code in early records |
+| 12 | CZK | 1996-2026 | Czech koruna |
+| 13 | HUF | 1996-2026 | Hungarian forint |
+| 14 | RON | 1996-2026 | Old ROL through 2005; new RON from 2006 |
+| 15 | BGN | 1996-2025 | Old BGL through 1999; new BGN from 2000; no 2026 |
 | 16 | SEK | 1992-2026 | Swedish krona |
 | 17 | NOK | 1992-2026 | Norwegian krone |
 | 18 | DKK | 1992-2026 | Danish krone |
-| 19 | TRY | 1992-2026 | Old TRL in 1992-2004; new TRY from 2005 |
-| 20 | ILS | 1992-2026 | Israeli shekel |
-| 21 | AED | 1992-2026 | UAE dirham |
-| 22 | SAR | 1992-2026 | Saudi riyal |
+| 19 | TRY | 1996-2026 | Old TRL through 2004; new TRY from 2005 |
+| 20 | ILS | 1996-2026 | Israeli shekel |
+| 21 | AED | 1992-2026 | Fixed 3.6725 AED per USD parity |
+| 22 | SAR | 1992-2026 | Fixed 3.75 SAR per USD parity |
 | 23 | INR | 1992-2026 | Indian rupee |
 | 24 | KRW | 1992-2026 | South Korean won |
 | 25 | SGD | 1992-2026 | Singapore dollar |
 | 26 | HKD | 1992-2026 | Hong Kong dollar |
-| 27 | MXN | 1992-2026 | Old peso in 1992; new MXN from 1993 |
-| 28 | BRL | 1994-2026 | Real partial period from 1994-07-01 |
+| 27 | MXN | 1994-2026 | New peso; no valid January H.10 record in 1992-1993 |
+| 28 | BRL | 1995-2026 | Brazilian real; 1994 has no January real record |
 | 29 | ZAR | 1992-2026 | South African rand |
 | 30 | THB | 1992-2026 | Thai baht |
-| 31 | RUB | 1992-2026 | Partial official ruble series from July 1992 |
-| 32 | BYN | 1994-2026 | BYB through 1999; BYR in 2000-2015; BYN from 2016 |
+| 31 | RUB | 1993-2026 | Old ruble through 1997; new ruble from 1998 |
+| 32 | BYN | 1996-2026 | BYB through 1999; BYR through 2016; BYN from 2017 |
 
-## Historical handling
+The missing early ranges are source-availability gaps under the January-only
+rule, not zero rates. EUR begins with the euro's 1999 launch. BRL has no
+January 1994 observation because the real was introduced on 01.07.1994. BGN
+has no 2026 record because Bulgaria adopted the euro on 01.01.2026.
 
-The IMF series normalizes some historical observations to a modern currency
-unit. Where the user-facing historical unit changed, the generated values are
-scaled back to the nominal unit for the old period:
+## Historical units and transitions
 
-- **Ukraine:** the NBU report supplies nominal coupon-karbovanets averages for
-  1992-1995. The 1996 value is the IMF monthly average for September-December,
-  after the hryvnia reform. The NBU history page describes the coupon period
-  and [the reform announcement](https://bank.gov.ua/en/archive-news/all/21195748-the-ukrainian-hryvnia-marks-its-19th-anniversary)
-  records 100,000 karbovanets = 1 hryvnia from 1996-09-02.
-- **Poland:** [National Bank of Poland FAQ](https://nbp.pl/pytania-i-odpowiedzi)
-  documents 10,000 old zloty = 1 new zloty on 1995-01-01. IMF values for
-  1992-1994 are multiplied by 10,000.
-- **Mexico:** [Banco de Mexico](https://www.banxico.org.mx/footer-es/preguntas-frecuentes-dudas-ba.html)
-  documents 1,000 old pesos = 1 new peso effective 1993-01-01. Only 1992 is
-  scaled by 1,000.
-- **Bulgaria:** [Bulgarian National Bank](https://www.bnb.bg/AboutUs/PressOffice/POPressReleases/POPRDate/RELEASE_19980806_BG)
-  documents the 1999 lev redenomination. 1992-1998 are multiplied by 1,000;
-  July-December 1999 uses the new lev monthly segment. Bulgaria adopted the
-  euro on 2026-01-01; the [ECB changeover notice](https://www.ecb.europa.eu/press/pr/date/2026/html/ecb.pr260101~c830245e42.en.html)
-  is why BGN 2026 is left unavailable rather than guessed.
-- **Romania:** [Romanian legislation](https://legislatie.just.ro/Public/DetaliiDocumentAfis/53757)
-  documents 10,000 old lei = 1 new leu on 2005-07-01. 1992-2004 are scaled
-  by 10,000; July-December 2005 uses the new-leu monthly segment.
-- **Turkey:** the [TCMB 2005 annual report](https://www.tcmb.gov.tr/wps/wcm/connect/d8da04d9-c299-4721-8580-8c696177803e/2005AR.pdf?CACHEID=ROOTWORKSPACE-d8da04d9-c299-4721-8580-8c696177803e-pz7cncI&MOD=AJPERES)
-  records the new Turkish lira effective 2005-01-01. 1992-2004 are stored in
-  old nominal lira by multiplying the modern-unit series by 1,000,000.
-- **Brazil:** the [Central Bank of Brazil Real Plan note](https://www.bcb.gov.br/controleinflacao/planoreal?modalAberto=30anosreal_noticia5)
-  dates the real to 1994-07-01. The converter starts BRL in 1994 and uses the
-  July-December monthly segment, avoiding a false full-year real average.
-- **Euro and Czech koruna:** the [ECB euro introduction page](https://www.ecb.europa.eu/euro/intro/html/index.en.html)
-  dates the euro's launch to 1999-01-01, while the IMF series for CZK begins
-  in 1993; the UI reports those natural availability boundaries.
-- **Russian ruble:** the [Bank of Russia historical-rate service](https://www.cbr.ru/development/SXML/)
-  establishes the official daily-rate history from 01.07.1992. RUB 1992 is
-  therefore marked partial; 1994-1995 use the official monthly table, and
-  1993 plus 1996-2025 use the IMF annual series.
-- **Belarusian ruble:** the [National Bank of Belarus denomination notice](https://www.nb-rb.by/coinsbanknotes/banknotes/exchange.htm)
-  records 1,000 old rubles = 1 ruble from 01.01.2000 and 10,000 2000-series
-  rubles = 1 2009-series ruble from 01.07.2016. IMF observations are stored
-  in modern BYN units and are scaled back to nominal BYB/BYR for the older
-  periods; the UI exposes those units in result labels.
+- **Ukraine:** the first available UAH record is 01.01.1996-era coupon-
+  karbovanets data. The 1996 January rate is therefore not the later hryvnia
+  rate; the converter does not mix the two nominal units. Hryvnia is used from
+  1997 onward.
+- **Poland:** records available here are new PLN. The old PLZ boundary
+  (10,000 old zloty = 1 new zloty on 01.01.1995) is retained in the notes, but
+  no 1992-1995 January record is embedded.
+- **Romania:** 2005-01-01 is still old ROL in the January model; new RON is
+  used from the 2006 record. The 10,000:1 change on 01.07.2005 is not averaged
+  across a year.
+- **Bulgaria:** 1999-01-01 is still old BGL; new BGN is used from 2000. The
+  1,000:1 change on 05.07.1999 is not averaged across a year.
+- **Turkey:** old TRL is used through 2004; the new TRY is used from 2005,
+  reflecting the 1,000,000:1 redenomination effective 01.01.2005.
+- **Mexico:** the new MXN period begins 01.01.1993, but the first January
+  observation present in the selected H.10 source is in 1994, so 1993 is
+  intentionally unavailable.
+- **Russia:** CBR values are old nominal rubles through 1997 and new rubles
+  from 1998 after the 1,000:1 redenomination. RUB 1992 is unavailable because
+  the official daily series begins in July.
+- **Belarus:** 1996-1999 uses old BYB, 2000-2016 uses BYR, and 2017 onward
+  uses BYN. The 1,000:1 change on 01.01.2000 and 10,000:1 change on
+  01.07.2016 are respected; the 2016 January rate is therefore still BYR.
 
 ## Caveats
 
-- These are official reference/period-average series, not retail cash-desk,
-  card, or intraday prices.
-- Annual reference data can be revised by its publisher. This repository keeps
-  the values frozen for the stated development snapshot.
-- 2026 is preliminary YTD data through 2026-09-05. NBU, ECB, CBR, and NBRB
-  observation calendars differ, and BGN 2026 is deliberately absent.
-- Transition-year records are labeled partial in the application. They should
-  not be interpreted as a single-unit full-year average when a redenomination
-  happened during the year.
+- A January start-of-year quote is a point-in-time reference, not an annual
+  average and not a retail exchange-office price.
+- The exact observation date can differ by source because each institution
+  publishes on its own calendar. The policy is deliberately limited to the
+  first valid January observation.
+- Some currencies have shorter coverage than the nominal 1992-2026 window.
+  The UI calculates the common-year intersection after both currencies are
+  selected.
+- Institutional historical data can be revised by its publisher. This
+  repository keeps a frozen development snapshot until it is regenerated.
