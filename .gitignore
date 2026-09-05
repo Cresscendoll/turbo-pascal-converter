@@ -1,0 +1,17 @@
+# Free Pascal build products
+*.exe
+*.o
+*.ppu
+*.a
+*.compiled
+
+# IDE and tool caches
+*.bak
+*.~pas
+*.lps
+*.lpi
+*.dcu
+
+# Local validation output
+build/
+test-artifacts/
