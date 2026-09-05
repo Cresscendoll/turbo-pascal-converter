@@ -100,9 +100,57 @@ end;
 function DecimalText(Value: Double): String;
 var
   TextValue: String;
+  IntegerPart: String;
+  FractionPart: String;
+  GroupedInteger: String;
+  SignText: String;
+  DecimalPosition: Integer;
+  I: Integer;
 begin
   Str(Value: 0:2, TextValue);
-  DecimalText := TextValue;
+  while (Length(TextValue) > 0) and (TextValue[1] = ' ') do
+    Delete(TextValue, 1, 1);
+  while (Length(TextValue) > 0) and
+    (TextValue[Length(TextValue)] = ' ') do
+    Delete(TextValue, Length(TextValue), 1);
+
+  { Use the Russian-friendly display convention: dots group thousands and
+    the comma separates the two displayed fractional digits. }
+  for I := 1 to Length(TextValue) do
+    if TextValue[I] = ',' then
+      TextValue[I] := '.';
+
+  SignText := '';
+  if (Length(TextValue) > 0) and (TextValue[1] = '-') then
+  begin
+    SignText := '-';
+    Delete(TextValue, 1, 1);
+  end;
+
+  DecimalPosition := Pos('.', TextValue);
+  if DecimalPosition > 0 then
+  begin
+    IntegerPart := Copy(TextValue, 1, DecimalPosition - 1);
+    FractionPart := Copy(TextValue, DecimalPosition + 1, 2);
+  end
+  else
+  begin
+    IntegerPart := TextValue;
+    FractionPart := '00';
+  end;
+  while Length(FractionPart) < 2 do
+    FractionPart := FractionPart + '0';
+  if IntegerPart = '' then
+    IntegerPart := '0';
+
+  GroupedInteger := '';
+  for I := 1 to Length(IntegerPart) do
+  begin
+    if (I > 1) and (((Length(IntegerPart) - I + 1) mod 3) = 0) then
+      GroupedInteger := GroupedInteger + '.';
+    GroupedInteger := GroupedInteger + IntegerPart[I];
+  end;
+  DecimalText := SignText + GroupedInteger + ',' + FractionPart;
 end;
 
 function StripSpaces(Value: String): String;
