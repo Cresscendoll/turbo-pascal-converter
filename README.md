@@ -15,10 +15,27 @@ Release](https://github.com/Cresscendoll/turbo-pascal-converter/releases/latest)
 Run the file directly on Windows 10 or Windows 11 x64; there is no installer
 and the application does not need an Internet connection.
 
-The executable is an unsigned independent build. Windows SmartScreen may show
-a warning for an unknown publisher. Check the SHA-256 value in the release
-notes and make your own security decision; do not bypass Windows security
-controls blindly.
+## Windows SmartScreen notice
+
+Windows 10 or Windows 11 **may** show a red SmartScreen / Microsoft Defender
+warning such as **“Windows protected your PC”** (or the localized equivalent)
+when you launch the downloaded EXE. Not every user will see this warning.
+
+This can happen because the EXE is an independent unsigned build: it does not
+have a commercial code-signing certificate, and it is a new or low-reputation
+executable from Microsoft's perspective. This warning by itself does **not**
+mean that Windows detected malware.
+
+If you are unsure about the prebuilt binary, you can verify the project
+independently. The complete Pascal source code is public in this repository,
+the GitHub Release is built from the tagged public source revision, GitHub
+provides source-code archives for the release, and the SHA-256 checksum of the
+official EXE is published in the release notes. You can also build the
+application yourself with Free Pascal instead of running the provided binary.
+
+Do not disable SmartScreen or Windows Defender globally. Review the release
+page, source, checksum, and your own security policy before deciding whether
+to run any downloaded executable.
 
 ## What it does
 
