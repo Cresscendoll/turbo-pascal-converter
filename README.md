@@ -8,6 +8,10 @@ DOSBox, Lazarus, Delphi, and a separate runtime are not required.
 > **THIS IS NOT A LIVE EXCHANGE-RATE SERVICE.** Rates are compiled into the
 > program and never update automatically.
 
+![Example of the application interface after a historical conversion](docs/images/historical-converter-screenshot.png)
+
+*Example of the application interface after a historical conversion.*
+
 ## Download
 
 Download [TurboPascalCurrencyConverter.exe from the latest GitHub
