@@ -1,35 +1,80 @@
 program CurrencyConverter;
 
 {$mode TP}
+{$codepage utf8}
 {$APPTYPE CONSOLE}
 
-{ A deliberately small, offline currency converter in a Turbo Pascal style. }
-{ Every rate is UAH per one unit of the listed currency.                  }
+{ A deliberately small, offline historical converter in a Turbo Pascal style. }
+{ Every embedded value is the number of currency units per one US dollar.     }
 
 uses
-  Crt;
+  Crt, Windows, Localization, Historical_Rates;
 
 const
-  ApplicationTitle = 'Turbo Pascal Currency Converter';
   SnapshotDate = '05.09.2026';
   CurrencyCount = 30;
-  MaximumAmount = 1.0E12;
+  MaximumAmount = 1.0E15;
 
 type
   TCurrency = record
     Code: String[3];
-    Name: String[24];
-    RateInUAH: Double;
   end;
 
 var
   Currencies: array[1..CurrencyCount] of TCurrency;
 
+function Utf8CharLength(Value: String; Position: Integer): Integer;
+var
+  ByteValue: Integer;
+  CharacterLength: Integer;
+begin
+  ByteValue := Ord(Value[Position]);
+  if ByteValue < 128 then
+    CharacterLength := 1
+  else if ByteValue < 224 then
+    CharacterLength := 2
+  else if ByteValue < 240 then
+    CharacterLength := 3
+  else
+    CharacterLength := 4;
+
+  if Position + CharacterLength - 1 > Length(Value) then
+    CharacterLength := 1;
+  Utf8CharLength := CharacterLength;
+end;
+
+function Utf8VisualLength(Value: String): Integer;
+var
+  Position: Integer;
+  CharacterCount: Integer;
+begin
+  Position := 1;
+  CharacterCount := 0;
+  while Position <= Length(Value) do
+  begin
+    Position := Position + Utf8CharLength(Value, Position);
+    Inc(CharacterCount);
+  end;
+  Utf8VisualLength := CharacterCount;
+end;
+
+procedure DeleteLastUtf8Char(var Value: String);
+var
+  Position: Integer;
+begin
+  Position := Length(Value);
+  while (Position > 1) and (Ord(Value[Position]) >= 128) and
+    (Ord(Value[Position]) <= 191) do
+    Dec(Position);
+  if Position > 0 then
+    Delete(Value, Position, Length(Value) - Position + 1);
+end;
+
 function FitText(Value: String; Width: Integer): String;
 begin
-  while Length(Value) > Width do
-    Delete(Value, Width + 1, Length(Value));
-  while Length(Value) < Width do
+  while Utf8VisualLength(Value) > Width do
+    DeleteLastUtf8Char(Value);
+  while Utf8VisualLength(Value) < Width do
     Value := Value + ' ';
   FitText := Value;
 end;
@@ -46,7 +91,7 @@ function DecimalText(Value: Double): String;
 var
   TextValue: String;
 begin
-  Str(Value: 0: 2, TextValue);
+  Str(Value: 0:2, TextValue);
   DecimalText := TextValue;
 end;
 
@@ -80,117 +125,130 @@ begin
   NormalizeNumber := Value;
 end;
 
-function CurrencyLine(Index: Integer): String;
-var
-  LabelText: String;
+procedure ConfigureUtf8Console;
 begin
-  LabelText := NumberText(Index) + '. ' + Currencies[Index].Code + ' ' +
-    Currencies[Index].Name;
-  CurrencyLine := FitText(LabelText, 26) + ' ' +
-    FitText(DecimalText(Currencies[Index].RateInUAH), 8);
+  { Windows console APIs are used only to make the local Cyrillic UI legible. }
+  SetConsoleCP(65001);
+  SetConsoleOutputCP(65001);
 end;
 
 procedure InitializeCurrencies;
+var
+  I: Integer;
 begin
-  { Official NBU rates dated 05.09.2026, quoted as UAH for one unit. }
-  Currencies[1].Code := 'UAH'; Currencies[1].Name := 'Hryvnia';
-  Currencies[1].RateInUAH := 1.0;
-  Currencies[2].Code := 'USD'; Currencies[2].Name := 'US Dollar';
-  Currencies[2].RateInUAH := 44.73;
-  Currencies[3].Code := 'EUR'; Currencies[3].Name := 'Euro';
-  Currencies[3].RateInUAH := 51.94;
-  Currencies[4].Code := 'GBP'; Currencies[4].Name := 'Pound Sterling';
-  Currencies[4].RateInUAH := 60.36;
-  Currencies[5].Code := 'CHF'; Currencies[5].Name := 'Swiss Franc';
-  Currencies[5].RateInUAH := 55.30;
-  Currencies[6].Code := 'JPY'; Currencies[6].Name := 'Japanese Yen';
-  Currencies[6].RateInUAH := 0.29;
-  Currencies[7].Code := 'CNY'; Currencies[7].Name := 'Chinese Yuan';
-  Currencies[7].RateInUAH := 6.66;
-  Currencies[8].Code := 'CAD'; Currencies[8].Name := 'Canadian Dollar';
-  Currencies[8].RateInUAH := 32.43;
-  Currencies[9].Code := 'AUD'; Currencies[9].Name := 'Australian Dollar';
-  Currencies[9].RateInUAH := 32.17;
-  Currencies[10].Code := 'NZD'; Currencies[10].Name := 'New Zealand Dollar';
-  Currencies[10].RateInUAH := 26.26;
-  Currencies[11].Code := 'PLN'; Currencies[11].Name := 'Polish Zloty';
-  Currencies[11].RateInUAH := 12.00;
-  Currencies[12].Code := 'CZK'; Currencies[12].Name := 'Czech Koruna';
-  Currencies[12].RateInUAH := 2.14;
-  Currencies[13].Code := 'HUF'; Currencies[13].Name := 'Hungarian Forint';
-  Currencies[13].RateInUAH := 0.14;
-  Currencies[14].Code := 'RON'; Currencies[14].Name := 'Romanian Leu';
-  Currencies[14].RateInUAH := 9.89;
-  { BGN is retained as a legacy conversion after Bulgaria adopted EUR. }
-  Currencies[15].Code := 'BGN'; Currencies[15].Name := 'Bulgarian Lev old';
-  Currencies[15].RateInUAH := 26.5565003093;
-  Currencies[16].Code := 'SEK'; Currencies[16].Name := 'Swedish Krona';
-  Currencies[16].RateInUAH := 4.67;
-  Currencies[17].Code := 'NOK'; Currencies[17].Name := 'Norwegian Krone';
-  Currencies[17].RateInUAH := 4.81;
-  Currencies[18].Code := 'DKK'; Currencies[18].Name := 'Danish Krone';
-  Currencies[18].RateInUAH := 6.95;
-  Currencies[19].Code := 'TRY'; Currencies[19].Name := 'Turkish Lira';
-  Currencies[19].RateInUAH := 0.93;
-  Currencies[20].Code := 'ILS'; Currencies[20].Name := 'Israeli Shekel';
-  Currencies[20].RateInUAH := 14.81;
-  Currencies[21].Code := 'AED'; Currencies[21].Name := 'UAE Dirham';
-  Currencies[21].RateInUAH := 12.18;
-  Currencies[22].Code := 'SAR'; Currencies[22].Name := 'Saudi Riyal';
-  Currencies[22].RateInUAH := 11.91;
-  Currencies[23].Code := 'INR'; Currencies[23].Name := 'Indian Rupee';
-  Currencies[23].RateInUAH := 0.47;
-  Currencies[24].Code := 'KRW'; Currencies[24].Name := 'South Korean Won';
-  Currencies[24].RateInUAH := 0.03;
-  Currencies[25].Code := 'SGD'; Currencies[25].Name := 'Singapore Dollar';
-  Currencies[25].RateInUAH := 35.27;
-  Currencies[26].Code := 'HKD'; Currencies[26].Name := 'Hong Kong Dollar';
-  Currencies[26].RateInUAH := 5.70;
-  Currencies[27].Code := 'MXN'; Currencies[27].Name := 'Mexican Peso';
-  Currencies[27].RateInUAH := 2.63;
-  { BRL is derived from NBU EUR/UAH and ECB BRL/EUR for 04.09.2026. }
-  Currencies[28].Code := 'BRL'; Currencies[28].Name := 'Brazilian Real';
-  Currencies[28].RateInUAH := 8.7433717701;
-  Currencies[29].Code := 'ZAR'; Currencies[29].Name := 'South African Rand';
-  Currencies[29].RateInUAH := 2.79;
-  Currencies[30].Code := 'THB'; Currencies[30].Name := 'Thai Baht';
-  Currencies[30].RateInUAH := 1.36;
+  for I := 1 to CurrencyCount do
+    Currencies[I].Code := CurrencyCode(I);
 end;
 
-procedure ShowHeader(SectionName: String);
+procedure ShowHeader(SectionName: String; Language: TLanguage);
 begin
   ClrScr;
   TextColor(LightCyan);
   WriteLn('+------------------------------------------------------------+');
-  WriteLn('| ', FitText(ApplicationTitle, 58), ' |');
+  WriteLn('| ', FitText(LocalizedText(tkApplicationTitle, Language), 58), ' |');
   WriteLn('| ', FitText(SectionName, 58), ' |');
   WriteLn('+------------------------------------------------------------+');
   TextColor(White);
-  WriteLn('Snapshot: ', SnapshotDate,
-    ' | static rates | no network access');
+  WriteLn(LocalizedText(tkSnapshotLabel, Language), ': ', SnapshotDate,
+    ' | ', LocalizedText(tkStaticData, Language), ' | ',
+    LocalizedText(tkNoNetwork, Language));
+  WriteLn(LocalizedText(tkCoverageLabel, Language), ': 1992-2026; ',
+    LocalizedText(tkYtdThrough, Language), ' 05.09.2026.');
   WriteLn;
 end;
 
-procedure ShowCurrencies;
+procedure ShowLanguageSelector(Selection: Integer);
+begin
+  ClrScr;
+  TextColor(LightCyan);
+  WriteLn('+------------------------------------------------------------+');
+  WriteLn('| ', FitText(LocalizedText(tkLanguageSelectorTitle,
+    LanguageEnglish), 58), ' |');
+  WriteLn('+------------------------------------------------------------+');
+  TextColor(White);
+  WriteLn;
+  if Selection = 1 then
+    WriteLn('  < ', LanguageLabel(LanguageEnglish), ' >       ',
+      LanguageLabel(LanguageRussian))
+  else
+    WriteLn('      ', LanguageLabel(LanguageEnglish), '       < ',
+      LanguageLabel(LanguageRussian), ' >');
+  WriteLn;
+  WriteLn('  ', LocalizedText(tkLanguageSelectorHelp, LanguageEnglish));
+  WriteLn('  ', LocalizedText(tkLanguageSelectorHelp, LanguageRussian));
+end;
+
+procedure SelectLanguage(var Language: TLanguage);
+var
+  Selection: Integer;
+  Key: Char;
+begin
+  Selection := 1;
+  if Language = LanguageRussian then
+    Selection := 2;
+
+  repeat
+    ShowLanguageSelector(Selection);
+    Key := ReadKey;
+
+    { Crt returns an extended-key prefix before arrow scan codes. }
+    if (Key = #0) or (Key = #224) then
+    begin
+      Key := ReadKey;
+      case Ord(Key) of
+        75: Selection := 1;
+        77: Selection := 2;
+      end;
+    end
+    else if Key = '1' then
+      Selection := 1
+    else if Key = '2' then
+      Selection := 2
+    else if Key = #13 then
+    begin
+      if Selection = 1 then
+        Language := LanguageEnglish
+      else
+        Language := LanguageRussian;
+      Exit;
+    end;
+  until False;
+end;
+
+function CurrencyLine(Index: Integer; Language: TLanguage): String;
+var
+  LabelText: String;
+begin
+  LabelText := NumberText(Index) + '. ' + Currencies[Index].Code + ' ' +
+    CurrencyName(Index, Language);
+  CurrencyLine := FitText(LabelText, 27);
+end;
+
+procedure ShowCurrencies(PauseAtEnd: Boolean; Language: TLanguage);
 var
   Row: Integer;
 begin
-  ShowHeader('Supported currencies');
-  WriteLn('Rate column: UAH for 1 unit of the currency.');
+  ShowHeader(LocalizedText(tkCurrenciesTitle, Language), Language);
+  WriteLn(LocalizedText(tkCurrencyIntro1, Language));
+  WriteLn(LocalizedText(tkCurrencyIntro2, Language));
   WriteLn;
   for Row := 1 to 15 do
-    WriteLn(CurrencyLine(Row), '   ', CurrencyLine(Row + 15));
+    WriteLn(CurrencyLine(Row, Language), '   ',
+      CurrencyLine(Row + 15, Language));
   WriteLn;
-  WriteLn('BGN is shown as a legacy conversion after Bulgaria''s 2026 euro changeover.');
-  WriteLn('Press 0 at a currency prompt to return to the main menu.');
-  WriteLn;
-  WriteLn('Rates are static and do not update automatically.');
-  WriteLn;
-  Write('Press ENTER to continue...');
-  ReadLn;
+  WriteLn(LocalizedText(tkCurrencyNote1, Language));
+  WriteLn(LocalizedText(tkCurrencyNote2, Language));
+  if PauseAtEnd then
+  begin
+    WriteLn;
+    WriteLn(LocalizedText(tkCancelHint, Language));
+    WriteLn(LocalizedText(tkPressEnter, Language));
+    ReadLn;
+  end;
 end;
 
-function AskCurrency(Prompt: String; var Choice: Integer): Boolean;
+function AskCurrency(Prompt: String; Language: TLanguage;
+  var Choice: Integer): Boolean;
 var
   Line: String;
   ErrorPosition: Integer;
@@ -218,18 +276,17 @@ begin
       Exit;
     end;
 
-    WriteLn('Invalid currency number. Enter 1 to ', CurrencyCount,
-      ', or 0 to cancel.');
+    WriteLn(LocalizedText(tkInvalidCurrency, Language));
   until False;
 end;
 
-function AskAmount(var Amount: Double): Boolean;
+function AskAmount(Language: TLanguage; var Amount: Double): Boolean;
 var
   Line: String;
   ErrorPosition: Integer;
 begin
   repeat
-    Write('Enter amount (positive, decimal point or comma): ');
+    Write(LocalizedText(tkAmountPrompt, Language));
     ReadLn(Line);
     Line := NormalizeNumber(Line);
     Amount := 0.0;
@@ -242,17 +299,17 @@ begin
       Exit;
     end;
 
-    WriteLn('Invalid amount. Use a positive number up to 1,000,000,000,000.');
+    WriteLn(LocalizedText(tkInvalidAmount, Language));
   until False;
 end;
 
 function AskMenuChoice(Minimum: Integer; Maximum: Integer;
-  var Choice: Integer): Boolean;
+  Language: TLanguage; var Choice: Integer): Boolean;
 var
   Line: String;
   ErrorPosition: Integer;
 begin
-  Write('Select: ');
+  Write(LocalizedText(tkSelectPrompt, Language));
   ReadLn(Line);
   Line := StripSpaces(Line);
   Choice := -1;
@@ -263,122 +320,284 @@ begin
     (Choice >= Minimum) and (Choice <= Maximum);
 end;
 
-procedure ShowConversionResult(SourceIndex: Integer; DestinationIndex: Integer;
-  Amount: Double);
+function YearAvailable(SourceIndex: Integer; DestinationIndex: Integer;
+  Year: Integer): Boolean;
 var
+  SourceRate: Double;
+  DestinationRate: Double;
+  SourceKind: Integer;
+  DestinationKind: Integer;
+begin
+  YearAvailable := False;
+  if not GetHistoricalRate(SourceIndex, Year, SourceRate, SourceKind) then
+    Exit;
+  if not GetHistoricalRate(DestinationIndex, Year, DestinationRate,
+    DestinationKind) then
+    Exit;
+  YearAvailable := True;
+end;
+
+procedure AppendYearRange(var TextValue: String; FirstYear: Integer;
+  LastYear: Integer);
+var
+  Segment: String;
+begin
+  if TextValue <> '' then
+    TextValue := TextValue + ', ';
+  if FirstYear = LastYear then
+    Segment := NumberText(FirstYear)
+  else
+    Segment := NumberText(FirstYear) + '-' + NumberText(LastYear);
+  TextValue := TextValue + Segment;
+end;
+
+function AvailableYearsText(SourceIndex: Integer;
+  DestinationIndex: Integer): String;
+var
+  Year: Integer;
+  FirstYear: Integer;
+  LastYear: Integer;
+  InRange: Boolean;
+  TextValue: String;
+begin
+  TextValue := '';
+  InRange := False;
+  for Year := FirstHistoricalYear to LastHistoricalYear do
+  begin
+    if YearAvailable(SourceIndex, DestinationIndex, Year) then
+    begin
+      if not InRange then
+      begin
+        FirstYear := Year;
+        InRange := True;
+      end;
+      LastYear := Year;
+    end
+    else if InRange then
+    begin
+      AppendYearRange(TextValue, FirstYear, LastYear);
+      InRange := False;
+    end;
+  end;
+  if InRange then
+    AppendYearRange(TextValue, FirstYear, LastYear);
+  if TextValue = '' then
+    TextValue := 'none';
+  AvailableYearsText := TextValue;
+end;
+
+function CountAvailableYears(SourceIndex: Integer;
+  DestinationIndex: Integer): Integer;
+var
+  Year: Integer;
+  Count: Integer;
+begin
+  Count := 0;
+  for Year := FirstHistoricalYear to LastHistoricalYear do
+    if YearAvailable(SourceIndex, DestinationIndex, Year) then
+      Inc(Count);
+  CountAvailableYears := Count;
+end;
+
+function AskHistoricalYear(SourceIndex: Integer; DestinationIndex: Integer;
+  Language: TLanguage; var Year: Integer): Boolean;
+var
+  Line: String;
+  ErrorPosition: Integer;
+begin
+  repeat
+    Write(LocalizedText(tkYearPrompt, Language));
+    ReadLn(Line);
+    Line := StripSpaces(Line);
+    Year := -1;
+    Val(Line, Year, ErrorPosition);
+
+    if (ErrorPosition = 0) and (Year = 0) then
+    begin
+      AskHistoricalYear := False;
+      Exit;
+    end;
+
+    if (ErrorPosition = 0) and YearAvailable(SourceIndex, DestinationIndex,
+      Year) then
+    begin
+      AskHistoricalYear := True;
+      Exit;
+    end;
+
+    WriteLn(LocalizedText(tkUnavailableYear, Language),
+      AvailableYearsText(SourceIndex, DestinationIndex));
+  until False;
+end;
+
+procedure ShowConversionResult(SourceIndex: Integer; DestinationIndex: Integer;
+  Year: Integer; Amount: Double; Language: TLanguage);
+var
+  SourceUnitsPerUSD: Double;
+  DestinationUnitsPerUSD: Double;
+  SourceKind: Integer;
+  DestinationKind: Integer;
   ResultAmount: Double;
 begin
-  ResultAmount := Amount * Currencies[SourceIndex].RateInUAH /
-    Currencies[DestinationIndex].RateInUAH;
+  GetHistoricalRate(SourceIndex, Year, SourceUnitsPerUSD, SourceKind);
+  GetHistoricalRate(DestinationIndex, Year, DestinationUnitsPerUSD,
+    DestinationKind);
+  ResultAmount := Amount / SourceUnitsPerUSD * DestinationUnitsPerUSD;
 
-  WriteLn;
+  ShowHeader(LocalizedText(tkResultTitle, Language), Language);
   TextColor(LightGreen);
   WriteLn('+------------------------------------------------------------+');
-  WriteLn('| RESULT                                                     |');
+  WriteLn('| ', FitText(LocalizedText(tkResultWord, Language), 58), ' |');
   WriteLn('+------------------------------------------------------------+');
   TextColor(White);
-  WriteLn(DecimalText(Amount), ' ', Currencies[SourceIndex].Code,
-    ' = ', DecimalText(ResultAmount), ' ',
-    Currencies[DestinationIndex].Code);
+  WriteLn(LocalizedText(tkYearLabel, Language), ': ', Year);
+  WriteLn(DecimalText(Amount), ' ', CurrencyCode(SourceIndex), ' (',
+    HistoricalAmountName(SourceIndex, Year, Language), ') = ',
+    DecimalText(ResultAmount), ' ', CurrencyCode(DestinationIndex), ' (',
+    HistoricalAmountName(DestinationIndex, Year, Language), ')');
   WriteLn;
-  WriteLn('Formula: amount * source UAH rate / destination UAH rate.');
+  WriteLn(LocalizedText(tkPivotSource, Language),
+    DecimalText(SourceUnitsPerUSD), ' ', CurrencyCode(SourceIndex));
+  WriteLn(LocalizedText(tkPivotDestination, Language),
+    DecimalText(DestinationUnitsPerUSD), ' ', CurrencyCode(DestinationIndex));
+  WriteLn(LocalizedText(tkSourceUnit, Language), ': ',
+    HistoricalUnit(SourceIndex, Year, Language));
+  WriteLn(LocalizedText(tkDestinationUnit, Language), ': ',
+    HistoricalUnit(DestinationIndex, Year, Language));
+  WriteLn(LocalizedText(tkRateType, Language), ':');
+  WriteLn('  ', CurrencyCode(SourceIndex), ': ',
+    RateKindText(SourceKind, Language));
+  WriteLn('  ', CurrencyCode(DestinationIndex), ': ',
+    RateKindText(DestinationKind, Language));
+  WriteLn;
   TextColor(LightCyan);
-  WriteLn('Rates are static and do not update automatically.');
+  WriteLn(LocalizedText(tkStaticNotice, Language));
   TextColor(White);
 end;
 
-procedure ConversionSession;
+procedure ShowHistoricalNotes(Language: TLanguage);
+begin
+  ShowHeader(LocalizedText(tkNotesTitle, Language), Language);
+  WriteLn(LocalizedText(tkNotesRateConvention, Language));
+  WriteLn(LocalizedText(tkNotesCalculationModel, Language));
+  WriteLn;
+  WriteLn(LocalizedText(tkNotesUAH1, Language));
+  WriteLn(LocalizedText(tkNotesUAH2, Language));
+  WriteLn(LocalizedText(tkNotesNaturalBoundaries, Language));
+  WriteLn;
+  WriteLn(LocalizedText(tkNotesRedenomTitle, Language));
+  WriteLn(LocalizedText(tkNotesRedenom1, Language));
+  WriteLn(LocalizedText(tkNotesRedenom2, Language));
+  WriteLn(LocalizedText(tkNotesRedenom3, Language));
+  WriteLn;
+  WriteLn(LocalizedText(tkNotesYtd1, Language));
+  WriteLn(LocalizedText(tkNotesYtd2, Language));
+  WriteLn(LocalizedText(tkNotesYtd3, Language));
+  WriteLn;
+  WriteLn(LocalizedText(tkNotesSources, Language));
+  WriteLn(LocalizedText(tkPressEnter, Language));
+  ReadLn;
+end;
+
+procedure ConversionSession(Language: TLanguage);
 var
   SourceIndex: Integer;
   DestinationIndex: Integer;
   NextChoice: Integer;
+  Year: Integer;
   Amount: Double;
   ContinueSession: Boolean;
 begin
   ContinueSession := True;
   while ContinueSession do
   begin
-    ShowCurrencies;
-
+    ShowCurrencies(False, Language);
     WriteLn;
-    if not AskCurrency('Source currency number (0 = main menu): ', SourceIndex) then
+    if not AskCurrency(LocalizedText(tkSourcePrompt, Language), Language,
+      SourceIndex) then
       Exit;
-    if not AskCurrency('Destination currency number (0 = main menu): ',
+    if not AskCurrency(LocalizedText(tkDestinationPrompt, Language), Language,
       DestinationIndex) then
       Exit;
-    if not AskAmount(Amount) then
+
+    if CountAvailableYears(SourceIndex, DestinationIndex) = 0 then
+    begin
+      WriteLn(LocalizedText(tkNoCommonYears, Language));
+      WriteLn(LocalizedText(tkReturnMainPrompt, Language));
+      ReadLn;
+      Exit;
+    end;
+
+    ShowHeader(LocalizedText(tkYearTitle, Language), Language);
+    WriteLn(LocalizedText(tkPairLabel, Language), ': ',
+      CurrencyCode(SourceIndex), ' -> ', CurrencyCode(DestinationIndex));
+    WriteLn(LocalizedText(tkAvailableYearsLabel, Language), ': ',
+      AvailableYearsText(SourceIndex, DestinationIndex));
+    WriteLn(LocalizedText(tkYearInstruction, Language));
+    WriteLn;
+    if not AskHistoricalYear(SourceIndex, DestinationIndex, Language, Year) then
+      Exit;
+    if not AskAmount(Language, Amount) then
       Exit;
 
-    ShowConversionResult(SourceIndex, DestinationIndex, Amount);
+    ShowConversionResult(SourceIndex, DestinationIndex, Year, Amount, Language);
     WriteLn;
-    WriteLn('1. Perform another conversion');
-    WriteLn('2. Return to main menu');
+    WriteLn(LocalizedText(tkAnotherConversion, Language));
+    WriteLn(LocalizedText(tkReturnMainMenu, Language));
     repeat
-      if not AskMenuChoice(1, 2, NextChoice) then
-        WriteLn('Invalid choice. Enter 1 or 2.');
+      if not AskMenuChoice(1, 2, Language, NextChoice) then
+        WriteLn(LocalizedText(tkInvalidRepeatChoice, Language));
     until (NextChoice = 1) or (NextChoice = 2);
     ContinueSession := NextChoice = 1;
   end;
 end;
 
-procedure ShowAbout;
+procedure ShowMainMenu(Language: TLanguage);
 begin
-  ShowHeader('About this experiment');
-  WriteLn('A small retro-style converter for modern Windows consoles.');
-  WriteLn;
-  WriteLn('Compiler: Free Pascal Compiler in Turbo Pascal mode.');
-  WriteLn('The executable is native Windows code; DOSBox is not required.');
-  WriteLn;
-  WriteLn('The exchange-rate snapshot is frozen at ', SnapshotDate, '.');
-  WriteLn('The application contains no HTTP, HTTPS, sockets, API calls,');
-  WriteLn('downloads, telemetry, or automatic rate updates.');
-  WriteLn;
-  WriteLn('BGN is retained as a legacy conversion using the fixed');
-  WriteLn('1.95583 BGN per EUR changeover rate. BRL uses the latest');
-  WriteLn('ECB reference observation available for 04.09.2026.');
-  WriteLn;
-  WriteLn('Press ENTER to return to the main menu.');
-  ReadLn;
-end;
-
-procedure ShowMainMenu;
-begin
-  ShowHeader('Main menu');
-  WriteLn('1. Convert currencies');
-  WriteLn('2. View supported currencies');
-  WriteLn('3. About and rate notes');
-  WriteLn('0. Exit');
+  ShowHeader(LocalizedText(tkMainMenuTitle, Language), Language);
+  WriteLn(LocalizedText(tkMainConvert, Language));
+  WriteLn(LocalizedText(tkMainCurrencies, Language));
+  WriteLn(LocalizedText(tkMainNotes, Language));
+  WriteLn(LocalizedText(tkMainLanguage, Language));
+  WriteLn(LocalizedText(tkMainExit, Language));
   WriteLn;
 end;
 
 var
   MenuChoice: Integer;
+  CurrentLanguage: TLanguage;
 begin
-  InitializeCurrencies;
   TextBackground(Black);
   TextColor(White);
+  ConfigureUtf8Console;
+  CurrentLanguage := LanguageEnglish;
+  InitializeCurrencies;
+  InitializeHistoricalRates;
+  SelectLanguage(CurrentLanguage);
 
   repeat
-    ShowMainMenu;
-    if not AskMenuChoice(0, 3, MenuChoice) then
+    ShowMainMenu(CurrentLanguage);
+    if not AskMenuChoice(0, 4, CurrentLanguage, MenuChoice) then
     begin
-      WriteLn('Invalid menu choice. Enter 0, 1, 2, or 3.');
+      WriteLn(LocalizedText(tkInvalidMenu, CurrentLanguage));
       WriteLn;
-      Write('Press ENTER to try again...');
+      WriteLn(LocalizedText(tkPressEnter, CurrentLanguage));
       ReadLn;
     end
     else
       case MenuChoice of
-        1: ConversionSession;
-        2: ShowCurrencies;
-        3: ShowAbout;
+        1: ConversionSession(CurrentLanguage);
+        2: ShowCurrencies(True, CurrentLanguage);
+        3: ShowHistoricalNotes(CurrentLanguage);
+        4: SelectLanguage(CurrentLanguage);
       end;
   until MenuChoice = 0;
 
-  ShowHeader('Goodbye');
-  WriteLn('Thank you for using the converter.');
+  ShowHeader(LocalizedText(tkGoodbyeTitle, CurrentLanguage),
+    CurrentLanguage);
+  WriteLn(LocalizedText(tkThanks, CurrentLanguage));
   WriteLn;
-  Write('Press ENTER to close the program...');
+  WriteLn(LocalizedText(tkClose, CurrentLanguage));
   ReadLn;
   TextBackground(Black);
   TextColor(White);

@@ -1,67 +1,72 @@
-# Turbo Pascal Currency Converter
+# Turbo Pascal Historical Currency Converter
 
-A small retro-style offline currency converter written in Pascal. It is a
-deliberately simple console program with numbered menus, ASCII borders, and a
-classic Turbo Pascal feel.
+A small retro-style, offline historical currency converter written in Pascal.
+It keeps the numbered menus, ASCII borders, and straightforward calculations
+of a classic console utility, while running as a native Windows 11 executable.
+The interface supports English and Russian in one executable.
 
 ## What it does
 
-- Written as one Pascal source file: `currency_converter.pas`.
-- Compiled with Free Pascal Compiler (FPC) using `{$mode TP}`.
-- Builds a native Windows executable that runs directly on Windows 11.
-- Does not require DOSBox, Lazarus, Delphi, or another runtime.
-- Supports 30 currencies, including UAH, USD, EUR, GBP, CHF, JPY, CNY, CAD,
-  AUD, NZD, PLN, CZK, HUF, RON, BGN, SEK, NOK, DKK, TRY, ILS, AED, SAR,
-  INR, KRW, SGD, HKD, MXN, BRL, ZAR, and THB.
-- Accepts decimal points or commas and permits repeated conversions in one
-  session.
+- Uses Free Pascal Compiler with `{$mode TP}`.
+- Runs directly on Windows 11; DOSBox, Lazarus, Delphi, and another runtime
+  are not required.
+- Includes 30 currencies, with UAH prominently included.
+- Converts through a common USD pivot and accepts decimal points or commas.
+- Lets the user choose a pair, then shows only the historical years available
+  for both currencies.
+- Labels transition years, redenominated units, partial-year averages, and the
+  2026 year-to-date record.
+- Starts with an English/Russian selector using LEFT/RIGHT and ENTER, and can
+  change language from the main menu.
+- Keeps Pascal source files in UTF-8 and sets the native Windows console to
+  UTF-8 at startup so Cyrillic text renders correctly.
 
-## Frozen rates
+The application code is in `currency_converter.pas`. The embedded historical
+data is in the Pascal unit `historical_rates.pas`, and the localized resources
+are in `localization.pas`. Both are static Pascal source; neither is a runtime
+data file.
 
-The embedded rates are a static snapshot dated **05.09.2026**. They are not
-live data and the program never updates them automatically. Conversion uses
-one consistent model: each rate is UAH per one unit of currency, so a result
-is calculated as:
+## Historical data
+
+The snapshot label is **2026-09-05**. Values for 1992-2025 are annual
+reference averages where the source provides them. 2026 values are year-to-date
+averages through **2026-09-05**, not a completed annual average. BGN has no
+2026 record because Bulgaria adopted the euro on 2026-01-01.
+
+Each embedded value means **currency units per 1 USD**. A conversion is:
 
 ```text
-amount * source_rate_in_UAH / destination_rate_in_UAH
+amount / source_units_per_usd * destination_units_per_usd
 ```
 
-The primary data source is the [National Bank of Ukraine official exchange-rate
-API](https://bank.gov.ua/en/open-data/api-dev), queried for 05.09.2026. BRL is
-derived from the [ECB reference-rate data API](https://data-api.ecb.europa.eu/service/data/EXR/D.BRL.EUR.SP00.A?startPeriod=2026-09-04&endPeriod=2026-09-04&format=csvdata)
-for 04.09.2026, the latest available ECB business-day observation before the
-snapshot date. BGN is retained as a legacy conversion using the ECB's fixed
-[1.95583 BGN per EUR changeover rate](https://www.ecb.europa.eu/press/pr/date/2025/html/ecb.pr250708~b9676a9fa8.en.html),
-because Bulgaria adopted the euro on 01.01.2026.
+UAH 1992-1995 is kept in nominal coupon-karbovanets, UAH 1996 is the
+post-reform hryvnia period, and the documented old/new unit changes are applied
+to PLN, RON, BGN, TRY, MXN, and BRL. See [SOURCES.md](SOURCES.md) for the
+method, availability table, and official references.
 
 ## Compile and run
 
-Install the [Free Pascal Compiler](https://www.freepascal.org/download.html),
-then from this directory run the normal compiler command:
+With `fpc` available on `PATH`, compile from the repository directory:
 
 ```text
-fpc -O2 -vw currency_converter.pas
-currency_converter.exe
+fpc -B -O2 -vw -Fu. -FEbuild -FUbuild -obuild\currency_converter.exe currency_converter.pas
+build\currency_converter.exe
 ```
 
-For the FPC 3.2.2 Windows package used for local validation, the native 64-bit
-cross-compiler is available directly as `ppcrossx64.exe`:
+For the FPC 3.2.2 Windows installation used for local validation, the native
+Win64 command was:
 
 ```text
-C:\FPC\3.2.2\bin\i386-win32\ppcrossx64.exe -O2 -vw currency_converter.pas
-currency_converter.exe
+C:\FPC\3.2.2\bin\i386-win32\ppcrossx64.exe -B -O2 -vw -Fu. -FE..\build-x64 -FU..\build-x64 -o..\build-x64\currency_converter.exe currency_converter.pas
 ```
-
-The direct `fpc` command produces a normal 32-bit Windows executable; the
-`ppcrossx64` command produces the validated native 64-bit build.
 
 ## Offline by design
 
-The finished program contains no HTTP or HTTPS requests, sockets, API calls,
-downloads, telemetry, or external rate files. All rates are hard-coded in the
-Pascal source. Internet access was used only during development to obtain the
-documented frozen snapshot.
+The finished application contains no HTTP or HTTPS requests, sockets, API
+calls, downloads, telemetry, or external rate files. All rates are hard-coded
+in Pascal source. Internet access was used only during development to obtain
+the documented snapshot. The Windows console API calls are limited to setting
+the input/output code page to UTF-8; they do not contact the network.
 
 This is a small educational retro-programming experiment, not a live financial
 data service.
