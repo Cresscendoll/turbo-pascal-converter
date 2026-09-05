@@ -26,7 +26,17 @@ type
     tkNotesUAH1, tkNotesUAH2, tkNotesNaturalBoundaries,
     tkNotesRedenomTitle, tkNotesRedenom1, tkNotesRedenom2,
     tkNotesRedenom3, tkNotesYtd1, tkNotesYtd2, tkNotesYtd3, tkNotesSources,
-    tkThanks, tkClose, tkLanguageSelectorTitle, tkLanguageSelectorHelp
+    tkThanks, tkClose, tkLanguageSelectorTitle, tkLanguageSelectorHelp,
+    tkTuiSourceLabel, tkTuiDestinationLabel, tkTuiYearFieldLabel,
+    tkTuiAmountLabel, tkTuiConvertButton, tkTuiBackButton,
+    tkTuiLanguageButton, tkTuiClearButton, tkTuiQuitButton,
+    tkTuiAvailableLabel, tkTuiMouseReady, tkTuiMouseUnavailable,
+    tkTuiFooter, tkTuiMouseFooter, tkTuiPickerFooter,
+    tkTuiCurrencyPickerTitle, tkTuiChooseSourceCurrency,
+    tkTuiChooseDestinationCurrency, tkTuiYearPickerTitle,
+    tkTuiAmountPlaceholder, tkTuiInvalidAmountShort, tkTuiNoResult,
+    tkTuiConverted, tkTuiSmallConsole1, tkTuiSmallConsole2,
+    tkTuiSmallConsole3, tkTuiResizeHint
   );
 
 function LocalizedText(Key: TTextKey; Language: TLanguage): String;
@@ -147,6 +157,43 @@ begin
         'LANGUAGE SELECTOR / ВЫБОР ЯЗЫКА';
       tkLanguageSelectorHelp: LocalizedText :=
         'LEFT / RIGHT or 1 / 2, then ENTER';
+      tkTuiSourceLabel: LocalizedText := 'SOURCE CURRENCY';
+      tkTuiDestinationLabel: LocalizedText := 'DESTINATION CURRENCY';
+      tkTuiYearFieldLabel: LocalizedText := 'YEAR';
+      tkTuiAmountLabel: LocalizedText := 'AMOUNT';
+      tkTuiConvertButton: LocalizedText := 'CONVERT';
+      tkTuiBackButton: LocalizedText := 'BACK';
+      tkTuiLanguageButton: LocalizedText := 'CHANGE LANGUAGE';
+      tkTuiClearButton: LocalizedText := 'CLEAR';
+      tkTuiQuitButton: LocalizedText := 'QUIT';
+      tkTuiAvailableLabel: LocalizedText := 'Available';
+      tkTuiMouseReady: LocalizedText := 'Mouse: ready.';
+      tkTuiMouseUnavailable: LocalizedText :=
+        'Mouse input unavailable - keyboard controls remain active.';
+      tkTuiFooter: LocalizedText :=
+        'Tab: next   Shift+Tab: previous   Enter: select   Esc: back';
+      tkTuiMouseFooter: LocalizedText := 'Mouse: click controls';
+      tkTuiPickerFooter: LocalizedText :=
+        'Up/Down: move   Left/Right: column   Enter: choose   Esc: back';
+      tkTuiCurrencyPickerTitle: LocalizedText := 'Choose currency';
+      tkTuiChooseSourceCurrency: LocalizedText := 'Choose source currency';
+      tkTuiChooseDestinationCurrency: LocalizedText :=
+        'Choose destination currency';
+      tkTuiYearPickerTitle: LocalizedText := 'Choose year';
+      tkTuiAmountPlaceholder: LocalizedText := 'type amount';
+      tkTuiInvalidAmountShort: LocalizedText :=
+        'Enter a positive amount, then choose CONVERT.';
+      tkTuiNoResult: LocalizedText :=
+        'Choose fields, then activate CONVERT.';
+      tkTuiConverted: LocalizedText := 'Conversion ready.';
+      tkTuiSmallConsole1: LocalizedText :=
+        'Console is too small for this TUI.';
+      tkTuiSmallConsole2: LocalizedText :=
+        'Resize it to at least 72 x 24 characters.';
+      tkTuiSmallConsole3: LocalizedText :=
+        'Keyboard remains available after resizing.';
+      tkTuiResizeHint: LocalizedText :=
+        'Resize the window, then press any key.';
     end
   else
     case Key of
@@ -188,7 +235,7 @@ begin
       tkPairLabel: LocalizedText := 'Пара';
       tkAvailableYearsLabel: LocalizedText := 'Доступные годы';
       tkYearInstruction: LocalizedText :=
-        'Год может быть средним за полный год, переходным неполным годом или данными 2026 года по дату.';
+        'Год: полный средний, переходный неполный или 2026 по дату.';
       tkYearPrompt: LocalizedText := 'Выберите год для расчёта (0 = в главное меню): ';
       tkUnavailableYear: LocalizedText :=
         'Этот год недоступен для этой пары. Доступные диапазоны: ';
@@ -233,6 +280,42 @@ begin
       tkClose: LocalizedText := 'Нажмите ENTER, чтобы закрыть программу...';
       tkLanguageSelectorTitle: LocalizedText := 'ВЫБОР ЯЗЫКА / LANGUAGE SELECTOR';
       tkLanguageSelectorHelp: LocalizedText := 'LEFT / RIGHT или 1 / 2, затем ENTER';
+      tkTuiSourceLabel: LocalizedText := 'ИСХОДНАЯ ВАЛЮТА';
+      tkTuiDestinationLabel: LocalizedText := 'ВАЛЮТА НАЗНАЧЕНИЯ';
+      tkTuiYearFieldLabel: LocalizedText := 'ГОД';
+      tkTuiAmountLabel: LocalizedText := 'СУММА';
+      tkTuiConvertButton: LocalizedText := 'РАССЧЁТ';
+      tkTuiBackButton: LocalizedText := 'НАЗАД';
+      tkTuiLanguageButton: LocalizedText := 'СМЕНИТЬ ЯЗЫК';
+      tkTuiClearButton: LocalizedText := 'ОЧИСТИТЬ';
+      tkTuiQuitButton: LocalizedText := 'ВЫХОД';
+      tkTuiAvailableLabel: LocalizedText := 'Доступно';
+      tkTuiMouseReady: LocalizedText := 'Мышь: готова.';
+      tkTuiMouseUnavailable: LocalizedText :=
+        'Мышь недоступна - используйте клавиатуру.';
+      tkTuiFooter: LocalizedText :=
+        'Tab: далее   Shift+Tab: назад   Enter: выбор   Esc: назад';
+      tkTuiMouseFooter: LocalizedText := 'Мышь: нажимайте элементы';
+      tkTuiPickerFooter: LocalizedText :=
+        'Стрелки: перемещение   Enter: выбор   Esc: назад';
+      tkTuiCurrencyPickerTitle: LocalizedText := 'Выбор валюты';
+      tkTuiChooseSourceCurrency: LocalizedText := 'Выбор исходной валюты';
+      tkTuiChooseDestinationCurrency: LocalizedText := 'Выбор валюты назначения';
+      tkTuiYearPickerTitle: LocalizedText := 'Выбор года';
+      tkTuiAmountPlaceholder: LocalizedText := 'введите сумму';
+      tkTuiInvalidAmountShort: LocalizedText :=
+        'Введите положительную сумму и нажмите РАССЧЁТ.';
+      tkTuiNoResult: LocalizedText :=
+        'Выберите поля и нажмите РАССЧЁТ.';
+      tkTuiConverted: LocalizedText := 'Расчёт готов.';
+      tkTuiSmallConsole1: LocalizedText :=
+        'Окно консоли слишком мало для этого интерфейса.';
+      tkTuiSmallConsole2: LocalizedText :=
+        'Увеличьте его минимум до 72 x 24 символов.';
+      tkTuiSmallConsole3: LocalizedText :=
+        'Клавиатура остаётся доступной после изменения размера.';
+      tkTuiResizeHint: LocalizedText :=
+        'Измените размер окна и нажмите любую клавишу.';
     end;
 end;
 

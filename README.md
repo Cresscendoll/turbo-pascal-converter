@@ -1,9 +1,9 @@
 # Turbo Pascal Historical Currency Converter
 
 A small retro-style, offline historical currency converter written in Pascal.
-It keeps the numbered menus, ASCII borders, and straightforward calculations
-of a classic console utility, while running as a native Windows 11 executable.
-The interface supports English and Russian in one executable.
+It keeps the straightforward calculations of a classic console utility, while
+running as a native Windows 11 console TUI. The interface supports English and
+Russian in one executable, with one event loop shared by keyboard and mouse.
 
 ## What it does
 
@@ -17,14 +17,29 @@ The interface supports English and Russian in one executable.
 - Labels transition years, redenominated units, partial-year averages, and the
   2026 year-to-date record.
 - Starts with an English/Russian selector using LEFT/RIGHT and ENTER, and can
-  change language from the main menu.
+  change language from the clickable header or the main action row.
+- Provides focusable source, destination, year, amount, convert, back, clear,
+  language, and quit controls. Currency pickers use two clickable columns and
+  the year picker uses a clickable five-column grid.
+- Accepts Tab/Shift+Tab, arrows, Enter/Space, Escape, Home/End/Page Up/Page
+  Down, numeric shortcuts, and amount editing with digits, point/comma,
+  backspace, delete, and cursor movement.
+- Uses the Windows console input API for left-click and double-click events;
+  Quick Edit is disabled while the TUI is active and the original console
+  input mode, cursor, attributes, position, and code pages are restored on
+  exit.
 - Keeps Pascal source files in UTF-8 and sets the native Windows console to
   UTF-8 at startup so Cyrillic text renders correctly.
 
-The application code is in `currency_converter.pas`. The embedded historical
-data is in the Pascal unit `historical_rates.pas`, and the localized resources
-are in `localization.pas`. Both are static Pascal source; neither is a runtime
-data file.
+The TUI is designed for a console viewport of at least **72 x 24**
+characters. A smaller window shows a localized resize message and keeps the
+keyboard path available. If native mouse input is unavailable, the same
+controls remain fully usable from the keyboard.
+
+The application code is in `currency_converter.pas`. The native console TUI
+adapter is in `tui.pas`; embedded historical data is in the Pascal unit
+`historical_rates.pas`; localized resources are in `localization.pas`. All are
+static Pascal source; neither rates nor UI assets are runtime data files.
 
 ## Historical data
 
@@ -65,8 +80,9 @@ C:\FPC\3.2.2\bin\i386-win32\ppcrossx64.exe -B -O2 -vw -Fu. -FE..\build-x64 -FU..
 The finished application contains no HTTP or HTTPS requests, sockets, API
 calls, downloads, telemetry, or external rate files. All rates are hard-coded
 in Pascal source. Internet access was used only during development to obtain
-the documented snapshot. The Windows console API calls are limited to setting
-the input/output code page to UTF-8; they do not contact the network.
+the documented snapshot. The Windows console API calls only manage the local
+console buffer, cursor, code pages, keyboard records, resize records, and
+mouse records; they do not contact the network.
 
 This is a small educational retro-programming experiment, not a live financial
 data service.
