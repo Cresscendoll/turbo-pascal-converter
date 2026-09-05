@@ -26,6 +26,13 @@ have a commercial code-signing certificate, and it is a new or low-reputation
 executable from Microsoft's perspective. This warning by itself does **not**
 mean that Windows detected malware.
 
+![Example of a Windows SmartScreen warning](docs/images/smartscreen-warning-example.png)
+
+*Example of the kind of SmartScreen warning Windows may display for an
+unsigned executable. [Illustrative screenshot source: Wikimedia
+Commons](https://commons.wikimedia.org/wiki/File:Windows-protected-your-pc-more-info.png);
+the image is stored locally in this repository.*
+
 If you are unsure about the prebuilt binary, you can verify the project
 independently. The complete Pascal source code is public in this repository,
 the GitHub Release is built from the tagged public source revision, GitHub
